@@ -7,24 +7,83 @@
  */
 
 plugins {
-    // Apply the scala plugin to add support for Scala
     id 'scala'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
+group 'template.spark'
+version '0.0.1'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
 }
 
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
 }
 
 dependencies {
-    // Use Scala 2.12 in our library project
-    implementation 'org.scala-lang:scala-library:2.12.8'
+    implementation "org.scala-lang:scala-library:"+scalaVersion
+    implementation "org.scala-lang:scala-reflect:"+scalaVersion
+    implementation "org.scala-lang:scala-compiler:"+scalaVersion
 
-    // Use Scalatest for testing our library
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.scalatest:scalatest_2.12:3.0.5'
+    testImplementation 'org.scalatest:scalatest_2.11:3.0.7'
 
-    // Need scala-xml at test runtime
-    testRuntimeOnly 'org.scala-lang.modules:scala-xml_2.12:1.1.1'
+    testRuntimeOnly 'org.scala-lang.modules:scala-xml_2.11:1.2.0'
+
+    implementation 'org.apache.spark:spark-mllib_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-sql_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-streaming-flume-assembly_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-graphx_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-launcher_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-catalyst_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-streaming_2.11:2.1.0'
+    implementation 'org.apache.spark:spark-core_2.11:2.1.0'
+
+    implementation 'commons-io:commons-io:2.5'
 }
+
+task run(type: JavaExec, dependsOn: classes) {
+    main = mainClassFile
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+
+jar {
+    classifier = 'all'
+    manifest {
+        attributes 'Implementation-Title': title,
+                'Implementation-Version': version,
+                'Main-Class': mainClassFile
+    }
+    include{sourceSets.main.output.classesDir}
+    zip64 true
+}
+
+shadowJar {
+    classifier = 'shadow'
+    append 'reference.conf'
+    dependencies {
+
+    }
+}
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
