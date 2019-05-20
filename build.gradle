@@ -34,6 +34,18 @@ repositories {
     mavenCentral()
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
+
+    }
+    // Cloudera Release Repo needed for those specific hadoop libraries versions
+    // (probably not needed if using other versions)
+    maven {
+        url "https://repository.cloudera.com/content/repositories/releases/"
+    }
+
+    // Cloudera Third-Party Repo needed for Cloudera-specific dependencies
+    // (probably not needed if using other versions)
+    maven {
+        url "https://repository.cloudera.com/content/repositories/third-party/"
     }
 }
 
@@ -55,6 +67,18 @@ dependencies {
     implementation 'org.apache.spark:spark-catalyst_2.11:2.1.0'
     implementation 'org.apache.spark:spark-streaming_2.11:2.1.0'
     implementation 'org.apache.spark:spark-core_2.11:2.1.0'
+
+    // Using 2.6.0-cdh5.13.1 Cloudera-specific versions
+    // because those are the ones used on the server provided by University
+
+    // https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common
+    implementation("org.apache.hadoop:hadoop-common:2.6.0-cdh5.13.1")
+
+    // https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-core
+    implementation("org.apache.hadoop:hadoop-core:2.6.0-mr1-cdh5.13.1")
+
+    // https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-hdfs
+    implementation("org.apache.hadoop:hadoop-hdfs:2.6.0-cdh5.13.1")
 
     implementation 'commons-io:commons-io:2.5'
 }
