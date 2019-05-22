@@ -10,6 +10,7 @@ plugins {
     id 'java'
     id 'scala'
     id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'application'
 }
 
 group 'it.unibo.bd'
@@ -18,13 +19,23 @@ version '0.0.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-configurations {
-    provided
-}
 
+
+/*configurations {
+    provided
+}*/
+
+mainClassName = 'it.unibo.bd1819.mocktest.SparkMockMain'
+
+// this makes the scala classes builds alongside the java ones.
 sourceSets {
     main {
-        compileClasspath += configurations.provided
+        scala {
+            srcDirs = ['src/main/scala', 'src/main/java']
+        }
+        java {
+            srcDirs = []
+        }
     }
 }
 
@@ -59,11 +70,11 @@ dependencies {
 
     testRuntimeOnly 'org.scala-lang.modules:scala-xml_2.11:1.2.0'
 
-    implementation 'org.apache.spark:spark-mllib_2.11:2.1.0'
+   // implementation 'org.apache.spark:spark-mllib_2.11:2.1.0'
     implementation 'org.apache.spark:spark-sql_2.11:2.1.0'
     implementation 'org.apache.spark:spark-streaming-flume-assembly_2.11:2.1.0'
-    implementation 'org.apache.spark:spark-graphx_2.11:2.1.0'
-    implementation 'org.apache.spark:spark-launcher_2.11:2.1.0'
+    //implementation 'org.apache.spark:spark-graphx_2.11:2.1.0'
+    //implementation 'org.apache.spark:spark-launcher_2.11:2.1.0'
     implementation 'org.apache.spark:spark-catalyst_2.11:2.1.0'
     implementation 'org.apache.spark:spark-streaming_2.11:2.1.0'
     implementation 'org.apache.spark:spark-core_2.11:2.1.0'
@@ -83,11 +94,12 @@ dependencies {
     implementation 'commons-io:commons-io:2.5'
 }
 
-task run(type: JavaExec, dependsOn: classes) {
+/*task run(type: JavaExec, dependsOn: classes) {
     main = mainClassFile
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.runtime
 }
+
 
 jar {
     classifier = 'all'
@@ -98,17 +110,18 @@ jar {
     }
     include{sourceSets.main.output.classesDir}
     zip64 true
-}
+}*/
 
 shadowJar {
-    classifier = 'shadow'
-    append 'reference.conf'
-    dependencies {
-
-    }
+    zip64 true
 }
 
+/*
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-}
+}*/
+
+defaultTasks 'clean', 'build', 'javadoc', 'scaladoc', 'shadowJar'
+
+
 
