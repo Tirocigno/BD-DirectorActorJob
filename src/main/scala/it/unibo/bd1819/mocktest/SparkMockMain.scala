@@ -19,7 +19,8 @@ object SparkMockMain extends App {
   rddCapraWords2.collect()
 
   val rddDcWords1 = rddDC.map( x => x.split(" ") )
-  println("OUTPUT:" + rddDcWords1.collect())
+  println("OUTPUT:")
+  rddCapraWords1.collect().flatten.foreach(println)
   val rddDcWords2 = rddDC.flatMap( x => x.split(" ") )
   println("OUTPUT:" + rddDcWords2.collect())
 }
