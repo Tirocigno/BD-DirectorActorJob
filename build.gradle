@@ -25,7 +25,7 @@ targetCompatibility = 1.7
     provided
 }*/
 
-mainClassName = 'it.unibo.bd1819.mocktest.WordCount'
+mainClassName = 'it.unibo.bd1819.mocktest.SparkMockMain'
 
 // this makes the scala classes builds alongside the java ones.
 sourceSets {
