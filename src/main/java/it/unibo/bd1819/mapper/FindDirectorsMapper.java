@@ -6,22 +6,23 @@ import org.apache.hadoop.io.Text;
 
 import java.io.IOException;
 
+import static it.unibo.bd1819.utils.Paths.VALUE_SEPARATOR;
+
 
 /**
  * Mapper for the FindDirectors Job
  */
-public class FindDirectorsMapper extends Mapper<Object, Text, Text, IntWritable> {
+public class FindDirectorsMapper extends Mapper<Object, Text, Text, Text> {
 
-    private final static IntWritable ONE = new IntWritable(1);
     private final static String ROLE = "director";
-    private final static String VALUE_SEPARATOR = "\\t";
     private final static String EMPTY_VALUE = "";
+    public final static String PRINCIPALS_JOIN_PREFIX = "prcjnprx";
 
     public void map(Object key, Text value, Context context
     ) throws IOException, InterruptedException {
         String directorID = filterByRole(value);
         if(!directorID.equals(EMPTY_VALUE)) {
-            context.write(new Text(directorID), ONE);
+            context.write(new Text(PRINCIPALS_JOIN_PREFIX + getTCONSTID(value)), new Text(directorID));
         }
     }
 
@@ -36,5 +37,9 @@ public class FindDirectorsMapper extends Mapper<Object, Text, Text, IntWritable>
         String[] values = line.split(VALUE_SEPARATOR);
         if(values[3].equals(ROLE)) return values[2];
         else return "";
+    }
+
+    private String getTCONSTID(final Text text) {
+        return text.toString().split(VALUE_SEPARATOR)[0];
     }
 }

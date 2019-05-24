@@ -3,6 +3,7 @@ package it.unibo.bd1819;
 import it.unibo.bd1819.mapper.FindDirectorsMapper;
 import it.unibo.bd1819.mocktest.WordCount;
 import it.unibo.bd1819.reducers.FindDirectorsReducer;
+import it.unibo.bd1819.utils.Paths;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -13,19 +14,22 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Main {
+    private static final Path titleBasicsPath = new Path(Paths.TITLE_BASICS_PATH);
+    private static final Path titlePrincipalsPath = new Path(Paths.TITLE_PRINCIPALS_PATH);
+    private static final Path nameBasicsPath = new Path(Paths.NAME_BASICS_PATH);
+    private static final Path outputPath = new Path(Paths.GENERIC_OUTPUT_PATH);
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "Find Directors");
+        Job joinTitlesTable = Job.getInstance(conf, "Join between title.principals and title.basics");
 
-        Path inputPath = new Path(args[0]), outputPath = new Path(args[1]);
         FileSystem fs = FileSystem.get(new Configuration());
 
         if (fs.exists(outputPath)) {
             fs.delete(outputPath, true);
         }
 
-        job.setJarByClass(Main.class);
+        /*job.setJarByClass(Main.class);
         job.setMapperClass(FindDirectorsMapper.class);
         job.setReducerClass(FindDirectorsReducer.class);
 
@@ -37,6 +41,6 @@ public class Main {
         FileInputFormat.addInputPath(job, inputPath);
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        System.exit(job.waitForCompletion(true) ? 0 : 1);*/
     }
 }
