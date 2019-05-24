@@ -1,17 +1,10 @@
 package it.unibo.bd1819;
 
-import it.unibo.bd1819.mapper.FindDirectorsMapper;
-import it.unibo.bd1819.mocktest.WordCount;
-import it.unibo.bd1819.reducers.FindDirectorsReducer;
 import it.unibo.bd1819.utils.Paths;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Main {
     private static final Path titleBasicsPath = new Path(Paths.TITLE_BASICS_PATH);
@@ -31,7 +24,7 @@ public class Main {
 
         /*job.setJarByClass(Main.class);
         job.setMapperClass(FindDirectorsMapper.class);
-        job.setReducerClass(FindDirectorsReducer.class);
+        job.setReducerClass(FindDirectorsMovieJoinReducer.class);
 
         //Set output class corresponding to the one specified in reducer.
         job.setOutputKeyClass(Text.class);

@@ -16,13 +16,13 @@ public class FindDirectorsMapper extends Mapper<Object, Text, Text, Text> {
 
     private final static String ROLE = "director";
     private final static String EMPTY_VALUE = "";
-    public final static String PRINCIPALS_JOIN_PREFIX = "prcjnprx";
+    public final static String PRINCIPALS_JOIN_PREFIX = "prcjnprx-";
 
     public void map(Object key, Text value, Context context
     ) throws IOException, InterruptedException {
         String directorID = filterByRole(value);
         if(!directorID.equals(EMPTY_VALUE)) {
-            context.write(new Text(PRINCIPALS_JOIN_PREFIX + getTCONSTID(value)), new Text(directorID));
+            context.write(new Text(getTCONSTID(value)), new Text(PRINCIPALS_JOIN_PREFIX + directorID));
         }
     }
 

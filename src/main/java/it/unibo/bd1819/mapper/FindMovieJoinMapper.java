@@ -16,14 +16,14 @@ public class FindMovieJoinMapper extends  Mapper<Object, Text, Text, Text> {
 
     private static final String CATEGORY = "movie";
     private static final String EMPTY_VALUE = "";
-    public static final String MOVIES_JOIN_PREFIX = "mvsjnprfx";
+    public static final String MOVIES_JOIN_PREFIX = "mvsjnprfx-";
 
 
     public void map(Object key, Text value, Context context
     ) throws IOException, InterruptedException {
         String movieID = filterByCategory(value);
         if(!movieID.equals(EMPTY_VALUE)) {
-            context.write(new Text(MOVIES_JOIN_PREFIX + movieID), new Text(EMPTY_VALUE));
+            context.write(new Text(movieID), new Text(MOVIES_JOIN_PREFIX));
         }
     }
 
