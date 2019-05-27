@@ -62,7 +62,8 @@ public class JobFactory {
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
         aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
-        aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
+       // aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
+        aggregationJob.setReducerClass(DebugReducer.class);
         aggregationJob.setOutputKeyClass(Text.class);
         aggregationJob.setOutputValueClass(Text.class);
 
