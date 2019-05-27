@@ -11,7 +11,6 @@ public class Paths {
     public static String TITLE_PRINCIPALS_PATH = GENERIC_INPUT_PATH + "principals";
     public static String TITLE_BASICS_PATH = GENERIC_INPUT_PATH + "titlebasics";
     public static String JOIN_TITLE_BASICS_PRINCIPALS_PATH = "mapreduce/jointitlebasicsprincipals";
-
     public final static String VALUE_SEPARATOR = "\\t";
 
 }

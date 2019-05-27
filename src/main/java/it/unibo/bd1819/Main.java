@@ -69,6 +69,7 @@ public class Main {
 
         aggregationJob.setJarByClass(Main.class);
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
+        aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
         aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
         aggregationJob.setOutputKeyClass(Text.class);

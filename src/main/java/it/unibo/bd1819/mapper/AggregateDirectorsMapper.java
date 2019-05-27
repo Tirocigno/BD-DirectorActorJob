@@ -6,9 +6,10 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class AggregateDirectorsMapper extends Mapper<Text, IntWritable, Text, IntWritable> {
-    public void map(Text key, IntWritable value, Context context
+
+public class AggregateDirectorsMapper extends Mapper<Text, Text, Text, IntWritable> {
+    public void map(Text key, Text value, Context context
     ) throws IOException, InterruptedException {
-        context.write(key, value);
+        context.write(key, new IntWritable(Integer.parseInt(value.toString())));
     }
 }

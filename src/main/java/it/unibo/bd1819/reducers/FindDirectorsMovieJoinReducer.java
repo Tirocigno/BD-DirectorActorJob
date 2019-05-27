@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.unibo.bd1819.utils.Paths.VALUE_SEPARATOR;
+
 
 /**
  * Reducer for the FindDirectorsJob.
  */
 public class FindDirectorsMovieJoinReducer extends Reducer<Text, Text,Text, IntWritable> {
 
-    private IntWritable result = new IntWritable();
     private final static String EMPTY_STRING ="";
 
     /**
