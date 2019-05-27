@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.unibo.bd1819.utils.Paths.VALUE_SEPARATOR;
+import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
 
 /**
  * Reducer for the FindDirectorsJob.
  */
-public class FindDirectorsMovieJoinReducer extends Reducer<Text, Text,Text, IntWritable> {
+public class FindDirectorsMovieJoinReducer extends Reducer<Text, Text,Text, Text> {
 
     private final static String EMPTY_STRING ="";
 
@@ -47,7 +47,7 @@ public class FindDirectorsMovieJoinReducer extends Reducer<Text, Text,Text, IntW
 
         for(String directorID : principalsDatasetRecords) {
             if(moviesDirected > 0) {
-                context.write(new Text(directorID), new IntWritable(moviesDirected));
+                context.write(key, new Text(directorID + CUSTOM_VALUE_SEPARATOR + moviesDirected));
             }
         }
 

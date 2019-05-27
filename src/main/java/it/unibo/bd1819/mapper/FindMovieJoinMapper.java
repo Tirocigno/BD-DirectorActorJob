@@ -5,7 +5,7 @@ import org.apache.hadoop.io.Text;
 
 import java.io.IOException;
 
-import static it.unibo.bd1819.utils.Paths.VALUE_SEPARATOR;
+import static it.unibo.bd1819.utils.Separators.VALUE_SEPARATOR;
 
 /**
  * Mapper that find all movies inside title.basics file

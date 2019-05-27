@@ -6,7 +6,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-import static it.unibo.bd1819.utils.Paths.VALUE_SEPARATOR;
+import static it.unibo.bd1819.utils.Separators.VALUE_SEPARATOR;
 
 /**
  * This mapper prepare the data of actor by movies to be joined by the director counterpart.

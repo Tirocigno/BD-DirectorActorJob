@@ -42,7 +42,7 @@ public class JobFactory {
         joinPrincipalBasicJob.setMapOutputValueClass(Text.class);
 
         joinPrincipalBasicJob.setOutputKeyClass(Text.class);
-        joinPrincipalBasicJob.setOutputValueClass(IntWritable.class);
+        joinPrincipalBasicJob.setOutputValueClass(Text.class);
 
         FileOutputFormat.setOutputPath(joinPrincipalBasicJob, basicprincipalsJoinPath);
 
@@ -64,7 +64,7 @@ public class JobFactory {
 
         aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
         aggregationJob.setOutputKeyClass(Text.class);
-        aggregationJob.setOutputValueClass(IntWritable.class);
+        aggregationJob.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(aggregationJob, basicprincipalsJoinPath);
         FileOutputFormat.setOutputPath(aggregationJob, sortPath);

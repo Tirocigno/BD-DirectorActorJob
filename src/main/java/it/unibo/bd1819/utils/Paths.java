@@ -13,6 +13,5 @@ public class Paths {
     public static String JOIN_TITLE_BASICS_PRINCIPALS_PATH = GENERIC_OUTPUT_PATH + "jointitlebasicsprincipals";
     public static String SORTED_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "sorted";
     public static String MAIN_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "output";
-    public final static String VALUE_SEPARATOR = "\\t";
 
 }
