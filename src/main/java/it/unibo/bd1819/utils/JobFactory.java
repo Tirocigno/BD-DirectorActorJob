@@ -1,10 +1,8 @@
 package it.unibo.bd1819.utils;
 
 import it.unibo.bd1819.Main;
-import it.unibo.bd1819.mapper.AggregateDirectorsMapper;
-import it.unibo.bd1819.mapper.FindDirectorsJoinMapper;
-import it.unibo.bd1819.mapper.FindMovieJoinMapper;
-import it.unibo.bd1819.mapper.SortMapper;
+import it.unibo.bd1819.mapper.*;
+import it.unibo.bd1819.reducers.ActorDirectorJoinReducer;
 import it.unibo.bd1819.reducers.AggregateDirectorsReducer;
 import it.unibo.bd1819.reducers.FindDirectorsMovieJoinReducer;
 import it.unibo.bd1819.reducers.SortReducer;
@@ -62,8 +60,7 @@ public class JobFactory {
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
         aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
-       // aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
-        aggregationJob.setReducerClass(DebugReducer.class);
+        aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
         aggregationJob.setOutputKeyClass(Text.class);
         aggregationJob.setOutputValueClass(Text.class);
 
@@ -72,6 +69,32 @@ public class JobFactory {
 
         return aggregationJob;
     }
+
+    public static Job createDirectorsActorsJoin(final Configuration conf) throws Exception {
+        Job joinDirectorsActor = Job.getInstance(conf, "Join between Actors and Directors");
+
+        joinDirectorsActor.setReducerClass(ActorDirectorJoinReducer.class);
+        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
+
+        joinDirectorsActor.setJarByClass(Main.class);
+
+        joinDirectorsActor.setMapOutputKeyClass(Text.class);
+        joinDirectorsActor.setMapOutputValueClass(Text.class);
+
+        joinDirectorsActor.setOutputKeyClass(Text.class);
+        joinDirectorsActor.setOutputValueClass(Text.class);
+
+        FileOutputFormat.setOutputPath(joinDirectorsActor, outputPath);
+
+        MultipleInputs.addInputPath(joinDirectorsActor, sortPath,
+                KeyValueTextInputFormat.class, FilteredDirectorMovieMapper.class);
+
+        MultipleInputs.addInputPath(joinDirectorsActor, titlePrincipalsPath,
+                KeyValueTextInputFormat.class, ActorJoinMapper.class);
+        return joinDirectorsActor;
+    }
+
+
 
     public static Job createSortedJob(final Configuration conf, final Path inputPath,
                                        final Path outputPath) throws Exception {

@@ -43,6 +43,7 @@ public class Main {
         deleteOutputFolder(fs, sortPath);
         jobs.add(createDirectorsMovieJoin(conf));
         jobs.add(createAggregatorJob(conf));
+        jobs.add(createDirectorsActorsJoin(conf));
 
 
         for (Job job: jobs) {

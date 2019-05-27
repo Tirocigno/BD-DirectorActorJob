@@ -13,6 +13,7 @@ import static it.unibo.bd1819.utils.Separators.VALUE_SEPARATOR;
  */
 public class ActorJoinMapper extends Mapper<Text, Text, Text, Text> {
     private final static String ROLE = "actor";
+    private final static String FEMALE_ROLE = "actress";
     private final static String EMPTY_VALUE = "";
     public final static String ACTOR_JOIN_PREFIX = "actr-";
 
@@ -32,7 +33,7 @@ public class ActorJoinMapper extends Mapper<Text, Text, Text, Text> {
     private String filterByRole(final Text text) {
         String line = text.toString();
         String[] values = line.split(VALUE_SEPARATOR);
-        if(values[2].equals(ROLE)) return values[1];
+        if(values[2].equals(ROLE) || values[2].equals(FEMALE_ROLE)) return values[1];
         else return EMPTY_VALUE;
     }
 }
