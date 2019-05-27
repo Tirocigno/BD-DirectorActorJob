@@ -1,6 +1,6 @@
 package it.unibo.bd1819.reducers;
 
-import it.unibo.bd1819.mapper.FindDirectorsMapper;
+import it.unibo.bd1819.mapper.FindDirectorsJoinMapper;
 import it.unibo.bd1819.mapper.FindMovieJoinMapper;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -33,9 +33,9 @@ public class FindDirectorsMovieJoinReducer extends Reducer<Text, Text,Text, IntW
         int moviesDirected = 0;
 
         for(Text val : values) {
-            if (val.toString().contains(FindDirectorsMapper.PRINCIPALS_JOIN_PREFIX)){
+            if (val.toString().contains(FindDirectorsJoinMapper.PRINCIPALS_JOIN_PREFIX)){
                 principalsDatasetRecords.add(val.toString()
-                        .replace(FindDirectorsMapper.PRINCIPALS_JOIN_PREFIX, EMPTY_STRING));
+                        .replace(FindDirectorsJoinMapper.PRINCIPALS_JOIN_PREFIX, EMPTY_STRING));
             }
 
             if(val.toString().contains(FindMovieJoinMapper.MOVIES_JOIN_PREFIX)) {
@@ -45,7 +45,9 @@ public class FindDirectorsMovieJoinReducer extends Reducer<Text, Text,Text, IntW
         }
 
         for(String directorID : principalsDatasetRecords) {
-          context.write(new Text(directorID), new IntWritable(moviesDirected));
+            if(moviesDirected > 0) {
+                context.write(new Text(directorID), new IntWritable(moviesDirected));
+            }
         }
 
     }

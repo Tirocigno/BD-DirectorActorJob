@@ -67,8 +67,8 @@ public class WordCount {
 			}
 		}
 		job.setReducerClass(IntSumReducer.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
+		//job.setOutputKeyClass(Text.class);
+		//job.setOutputValueClass(IntWritable.class);
 
 		FileInputFormat.addInputPath(job, inputPath);
 		FileOutputFormat.setOutputPath(job, outputPath);

@@ -1,11 +1,10 @@
 package it.unibo.bd1819;
 
 import it.unibo.bd1819.mapper.AggregateDirectorsMapper;
-import it.unibo.bd1819.mapper.FindDirectorsMapper;
+import it.unibo.bd1819.mapper.FindDirectorsJoinMapper;
 import it.unibo.bd1819.mapper.FindMovieJoinMapper;
 import it.unibo.bd1819.reducers.AggregateDirectorsReducer;
 import it.unibo.bd1819.reducers.FindDirectorsMovieJoinReducer;
-import it.unibo.bd1819.utils.JoinJob;
 import it.unibo.bd1819.utils.Paths;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -14,6 +13,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
@@ -42,17 +42,26 @@ public class Main {
         deleteOutputFolder(fs, outputPath);
 
         deleteOutputFolder(fs, basicprincipalsJoinPath);
-        MultipleInputs.addInputPath(joinPrincipalBasicJob, titleBasicsPath,
-                KeyValueTextInputFormat.class, FindMovieJoinMapper.class);
-        MultipleInputs.addInputPath(joinPrincipalBasicJob,
-                titlePrincipalsPath, KeyValueTextInputFormat.class, FindDirectorsMapper.class);
 
         joinPrincipalBasicJob.setReducerClass(FindDirectorsMovieJoinReducer.class);
+        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
         joinPrincipalBasicJob.setJarByClass(Main.class);
+
+        joinPrincipalBasicJob.setMapOutputKeyClass(Text.class);
+        joinPrincipalBasicJob.setMapOutputValueClass(Text.class);
+
         joinPrincipalBasicJob.setOutputKeyClass(Text.class);
         joinPrincipalBasicJob.setOutputValueClass(IntWritable.class);
+        //DEBUG:joinPrincipalBasicJob.setMapOutputKeyClass(Text.class);
+
         FileOutputFormat.setOutputPath(joinPrincipalBasicJob, basicprincipalsJoinPath);
+
+        MultipleInputs.addInputPath(joinPrincipalBasicJob, titleBasicsPath,
+                KeyValueTextInputFormat.class, FindMovieJoinMapper.class);
+
+        MultipleInputs.addInputPath(joinPrincipalBasicJob,
+                titlePrincipalsPath, KeyValueTextInputFormat.class, FindDirectorsJoinMapper.class);
 
         jobs.add(joinPrincipalBasicJob);
 
@@ -77,9 +86,24 @@ public class Main {
         }
     }
 
+    public static class DebugReducer
+            extends Reducer<Text,Text,Text,Text> {
+        private IntWritable result = new IntWritable();
+
+        public void reduce(Text key, Iterable<Text> values,
+                           Context context
+        ) throws IOException, InterruptedException {
+            for(Text t : values) {
+                context.write(key, t);
+            }
+        }
+    }
+
     private static void deleteOutputFolder(final FileSystem fs, final Path folderToDelete) throws IOException {
         if (fs.exists(folderToDelete)) {
             fs.delete(folderToDelete, true);
         }
     }
 }
+
+
