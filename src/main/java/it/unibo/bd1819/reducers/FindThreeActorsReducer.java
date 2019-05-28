@@ -59,6 +59,6 @@ public class FindThreeActorsReducer extends Reducer<Text,Text,Text, Text> {
             }
         }
         actorsMap.remove(choosenActor);
-        return choosenActor;
+        return choosenActor + CUSTOM_VALUE_SEPARATOR + max;
     }
 }

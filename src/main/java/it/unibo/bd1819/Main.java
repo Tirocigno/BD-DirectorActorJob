@@ -1,26 +1,10 @@
 package it.unibo.bd1819;
 
-import it.unibo.bd1819.mapper.AggregateDirectorsMapper;
-import it.unibo.bd1819.mapper.FindDirectorsJoinMapper;
-import it.unibo.bd1819.mapper.FindMovieJoinMapper;
-import it.unibo.bd1819.mapper.SortMapper;
-import it.unibo.bd1819.reducers.AggregateDirectorsReducer;
-import it.unibo.bd1819.reducers.FindDirectorsMovieJoinReducer;
-import it.unibo.bd1819.reducers.SortReducer;
-import it.unibo.bd1819.utils.Paths;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,10 +24,13 @@ public class Main {
 
         deleteOutputFolder(fs, outputPath);
         deleteOutputFolder(fs, basicprincipalsJoinPath);
-        deleteOutputFolder(fs, sortPath);
+        deleteOutputFolder(fs, aggregateDirectorPath);
+        deleteOutputFolder(fs, directorActorsJoinPath);
+        deleteOutputFolder(fs, threeActorsDirectorPath);
         jobs.add(createDirectorsMovieJoin(conf));
         jobs.add(createAggregatorJob(conf));
         jobs.add(createDirectorsActorsJoin(conf));
+        jobs.add(createThreeActorDirectorJob(conf));
 
 
         for (Job job: jobs) {

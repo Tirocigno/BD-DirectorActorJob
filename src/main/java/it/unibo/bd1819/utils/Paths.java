@@ -11,7 +11,9 @@ public class Paths {
     public static String TITLE_PRINCIPALS_PATH = GENERIC_INPUT_PATH + "principals";
     public static String TITLE_BASICS_PATH = GENERIC_INPUT_PATH + "titlebasics";
     public static String JOIN_TITLE_BASICS_PRINCIPALS_PATH = GENERIC_OUTPUT_PATH + "jointitlebasicsprincipals";
-    public static String SORTED_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "sorted";
+    public static String AGGREGATED_DIRECTORS_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "aggregateddirectors";
+    public static String JOIN_ACTORS_DIRECTORS_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "joinactorsdirector";
+    public static String THREE_ACTORS_DIRECTORS_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "threeactorsdirector";
     public static String MAIN_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "output";
 
 }

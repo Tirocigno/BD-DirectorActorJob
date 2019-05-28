@@ -2,10 +2,7 @@ package it.unibo.bd1819.utils;
 
 import it.unibo.bd1819.Main;
 import it.unibo.bd1819.mapper.*;
-import it.unibo.bd1819.reducers.ActorDirectorJoinReducer;
-import it.unibo.bd1819.reducers.AggregateDirectorsReducer;
-import it.unibo.bd1819.reducers.FindDirectorsMovieJoinReducer;
-import it.unibo.bd1819.reducers.SortReducer;
+import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -25,8 +22,10 @@ public class JobFactory {
     public static final Path titlePrincipalsPath = new Path(Paths.TITLE_PRINCIPALS_PATH);
     public static final Path nameBasicsPath = new Path(Paths.NAME_BASICS_PATH);
     public static final Path outputPath = new Path(Paths.MAIN_OUTPUT_PATH);
-    public static final Path sortPath = new Path(Paths.SORTED_OUTPUT_PATH);
+    public static final Path aggregateDirectorPath = new Path(Paths.AGGREGATED_DIRECTORS_OUTPUT_PATH);
     public static final Path basicprincipalsJoinPath = new Path(Paths.JOIN_TITLE_BASICS_PRINCIPALS_PATH);
+    public static final Path directorActorsJoinPath = new Path(Paths.JOIN_ACTORS_DIRECTORS_OUTPUT_PATH);
+    public static final Path threeActorsDirectorPath = new Path(Paths.THREE_ACTORS_DIRECTORS_OUTPUT_PATH);
 
     public static Job createDirectorsMovieJoin(final Configuration conf) throws Exception {
         Job joinPrincipalBasicJob = Job.getInstance(conf, "Join between title.principals and title.basics");
@@ -65,7 +64,7 @@ public class JobFactory {
         aggregationJob.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(aggregationJob, basicprincipalsJoinPath);
-        FileOutputFormat.setOutputPath(aggregationJob, sortPath);
+        FileOutputFormat.setOutputPath(aggregationJob, aggregateDirectorPath);
 
         return aggregationJob;
     }
@@ -84,14 +83,37 @@ public class JobFactory {
         joinDirectorsActor.setOutputKeyClass(Text.class);
         joinDirectorsActor.setOutputValueClass(Text.class);
 
-        FileOutputFormat.setOutputPath(joinDirectorsActor, outputPath);
+        FileOutputFormat.setOutputPath(joinDirectorsActor, directorActorsJoinPath);
 
-        MultipleInputs.addInputPath(joinDirectorsActor, sortPath,
+        MultipleInputs.addInputPath(joinDirectorsActor, aggregateDirectorPath,
                 KeyValueTextInputFormat.class, FilteredDirectorMovieMapper.class);
 
         MultipleInputs.addInputPath(joinDirectorsActor, titlePrincipalsPath,
                 KeyValueTextInputFormat.class, ActorJoinMapper.class);
         return joinDirectorsActor;
+    }
+
+    public static Job createThreeActorDirectorJob(final Configuration conf) throws Exception {
+        Job threeDirectorsActorJob = Job.getInstance(conf, "Find for each director the three actors");
+
+        threeDirectorsActorJob.setMapperClass(FindThreeActorsMapper.class);
+        threeDirectorsActorJob.setReducerClass(FindThreeActorsReducer.class);
+        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
+
+        threeDirectorsActorJob.setJarByClass(Main.class);
+
+        threeDirectorsActorJob.setMapOutputKeyClass(Text.class);
+        threeDirectorsActorJob.setMapOutputValueClass(Text.class);
+
+        threeDirectorsActorJob.setOutputKeyClass(Text.class);
+        threeDirectorsActorJob.setOutputValueClass(Text.class);
+
+        threeDirectorsActorJob.setInputFormatClass(KeyValueTextInputFormat.class);
+
+        FileInputFormat.addInputPath(threeDirectorsActorJob, directorActorsJoinPath);
+        FileOutputFormat.setOutputPath(threeDirectorsActorJob, threeActorsDirectorPath);
+
+        return threeDirectorsActorJob;
     }
 
 
