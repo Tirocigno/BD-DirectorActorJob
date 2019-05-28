@@ -36,6 +36,11 @@ public class FindThreeActorsReducer extends Reducer<Text,Text,Text, Text> {
         }
     }
 
+    /**
+     * Store the frequency of an actorID in the collection.
+     * @param actorsMap the collection to store the frequencies for each actor.
+     * @param actorID the actorID to process.
+     */
     private void processActor(Map<String,Integer> actorsMap, String actorID) {
         if (!actorsMap.containsKey(actorID)) {
             actorsMap.put(actorID, 1);
