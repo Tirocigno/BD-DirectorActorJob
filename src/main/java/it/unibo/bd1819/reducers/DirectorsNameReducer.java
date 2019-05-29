@@ -7,11 +7,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
 public class DirectorsNameReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values,
@@ -22,11 +18,11 @@ public class DirectorsNameReducer extends Reducer<Text, Text, Text, Text> {
 
         for(Text value : values) {
             if(value.toString().contains(DirectorNameJoinMapper.DIRECTOR_JOIN_PREFIX)) {
-                directorTuples.add(value.toString());
+                directorTuples.add(value.toString().replace(DirectorNameJoinMapper.DIRECTOR_JOIN_PREFIX, ""));
             }
 
             if(value.toString().contains(NameJoinerMapper.NAME_JOIN_PREFIX)) {
-                nameTuples.add(value.toString());
+                nameTuples.add(value.toString().replace(NameJoinerMapper.NAME_JOIN_PREFIX, ""));
             }
         }
 

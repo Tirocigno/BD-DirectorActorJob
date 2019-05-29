@@ -24,7 +24,6 @@ public class NameJoinerMapper extends Mapper<Text, Text, Text, Text> {
      */
     private Text buildNewValue(final Text value) {
         return new Text(NAME_JOIN_PREFIX +
-                CUSTOM_VALUE_SEPARATOR +
                 extractName(value));
     }
 
