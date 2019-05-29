@@ -26,6 +26,7 @@ public class JobFactory {
     public static final Path basicprincipalsJoinPath = new Path(Paths.JOIN_TITLE_BASICS_PRINCIPALS_PATH);
     public static final Path directorActorsJoinPath = new Path(Paths.JOIN_ACTORS_DIRECTORS_OUTPUT_PATH);
     public static final Path threeActorsDirectorPath = new Path(Paths.THREE_ACTORS_DIRECTORS_OUTPUT_PATH);
+    public static final Path joinDirectorsNamePath = new Path(Paths.JOIN_DIRECTORS_NAME_OUTPUT_PATH);
 
     public static Job createDirectorsMovieJoin(final Configuration conf) throws Exception {
         Job joinPrincipalBasicJob = Job.getInstance(conf, "Join between title.principals and title.basics");
@@ -114,6 +115,28 @@ public class JobFactory {
         FileOutputFormat.setOutputPath(threeDirectorsActorJob, threeActorsDirectorPath);
 
         return threeDirectorsActorJob;
+    }
+
+    public static Job createDirectorsNameJoin(final Configuration conf) throws Exception {
+        Job joinDirectorsName = Job.getInstance(conf, "Join between Names and Directors");
+
+        joinDirectorsName.setReducerClass(DirectorsNameReducer.class);
+        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
+
+        joinDirectorsName.setJarByClass(Main.class);
+
+
+        joinDirectorsName.setOutputKeyClass(Text.class);
+        joinDirectorsName.setOutputValueClass(Text.class);
+
+        FileOutputFormat.setOutputPath(joinDirectorsName, joinDirectorsNamePath);
+
+        MultipleInputs.addInputPath(joinDirectorsName, threeActorsDirectorPath,
+                KeyValueTextInputFormat.class, DirectorNameJoinMapper.class);
+
+        MultipleInputs.addInputPath(joinDirectorsName, nameBasicsPath,
+                KeyValueTextInputFormat.class, NameJoinerMapper.class);
+        return joinDirectorsName;
     }
 
 

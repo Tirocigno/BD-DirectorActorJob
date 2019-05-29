@@ -27,10 +27,12 @@ public class Main {
         deleteOutputFolder(fs, aggregateDirectorPath);
         deleteOutputFolder(fs, directorActorsJoinPath);
         deleteOutputFolder(fs, threeActorsDirectorPath);
+        deleteOutputFolder(fs, joinDirectorsNamePath);
         jobs.add(createDirectorsMovieJoin(conf));
         jobs.add(createAggregatorJob(conf));
         jobs.add(createDirectorsActorsJoin(conf));
         jobs.add(createThreeActorDirectorJob(conf));
+        jobs.add(createDirectorsNameJoin(conf));
 
 
         for (Job job: jobs) {
