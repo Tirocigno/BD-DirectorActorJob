@@ -219,7 +219,7 @@ public class JobFactory {
         sortJob.setOutputValueClass(Text.class);
         sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
         //sortJob.setGroupingComparatorClass(LongWritable.DecreasingComparator.class);
-        sortJob.setPartitionerClass(TotalOrderPartitioner.class);
+        //sortJob.setPartitionerClass(TotalOrderPartitioner.class);
 
         /*Path partitionPath = new Path(joinDirectorsNamePath + "_part.lst");
         TotalOrderPartitioner.setPartitionFile(
@@ -228,15 +228,15 @@ public class JobFactory {
                 1, 10000));*/
         FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
+        sortJob.setNumReduceTasks(1);
 
+       /* String partitionFile = TotalOrderPartitioner.getPartitionFile(conf);
+        URI partitionUri = new URI(partitionFile + "#" + TotalOrderPartitioner.DEFAULT_PATH);
+        DistributedCache.addCacheFile(partitionUri, conf);
 
         InputSampler.Sampler<LongWritable, Text> sampler =
                 new InputSampler.RandomSampler<>(1,10000);
-        InputSampler.writePartitionFile(sortJob, sampler);
-
-        String partitionFile = TotalOrderPartitioner.getPartitionFile(conf);
-        URI partitionUri = new URI(partitionFile + "#" + TotalOrderPartitioner.DEFAULT_PATH);
-        DistributedCache.addCacheFile(partitionUri, conf);
+        InputSampler.writePartitionFile(sortJob, sampler);*/
 
         return sortJob;
     }
