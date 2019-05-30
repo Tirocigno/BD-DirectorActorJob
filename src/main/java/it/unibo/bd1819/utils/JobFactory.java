@@ -4,9 +4,11 @@ import it.unibo.bd1819.Main;
 import it.unibo.bd1819.mapper.*;
 import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -14,15 +16,21 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
+import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
+import java.net.URI;
+
 
 import java.io.IOException;
+
+import static it.unibo.bd1819.utils.Paths.MAIN_OUTPUT_PATH;
 
 public class JobFactory {
 
     public static final Path titleBasicsPath = new Path(Paths.TITLE_BASICS_PATH);
     public static final Path titlePrincipalsPath = new Path(Paths.TITLE_PRINCIPALS_PATH);
     public static final Path nameBasicsPath = new Path(Paths.NAME_BASICS_PATH);
-    public static final Path outputPath = new Path(Paths.MAIN_OUTPUT_PATH);
+    public static final Path outputPath = new Path(MAIN_OUTPUT_PATH);
     public static final Path aggregateDirectorPath = new Path(Paths.AGGREGATED_DIRECTORS_OUTPUT_PATH);
     public static final Path basicprincipalsJoinPath = new Path(Paths.JOIN_TITLE_BASICS_PRINCIPALS_PATH);
     public static final Path directorActorsJoinPath = new Path(Paths.JOIN_ACTORS_DIRECTORS_OUTPUT_PATH);
@@ -190,36 +198,58 @@ public class JobFactory {
 
 
 
-    public static Job createSortedJob(final Configuration conf, final Path inputPath,
-                                       final Path outputPath) throws Exception {
+    public static Job createSortedJob(final Configuration conf) throws Exception {
 
-        Job sortJob = Job.getInstance(conf, "Generic sort");
+        FileSystem fs = FileSystem.get(conf);
+        deleteOutputFolder(fs, outputPath);
+
+        Job sortJob = new Job(conf);
 
         sortJob.setJarByClass(Main.class);
         sortJob.setMapperClass(SortMapper.class);
         sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
-        sortJob.setMapOutputKeyClass(IntWritable.class);
+
+        sortJob.setMapOutputKeyClass(LongWritable.class);
         sortJob.setMapOutputValueClass(Text.class);
 
         sortJob.setReducerClass(SortReducer.class);
+        //sortJob.setReducerClass(DebugReducer.class);
         sortJob.setOutputKeyClass(Text.class);
-        sortJob.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(sortJob, inputPath);
+        sortJob.setOutputValueClass(Text.class);
+        sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
+        //sortJob.setGroupingComparatorClass(LongWritable.DecreasingComparator.class);
+        sortJob.setPartitionerClass(TotalOrderPartitioner.class);
+
+        /*Path partitionPath = new Path(joinDirectorsNamePath + "_part.lst");
+        TotalOrderPartitioner.setPartitionFile(
+                sortJob.getConfiguration(), partitionPath);
+        InputSampler.writePartitionFile(sortJob, new InputSampler.RandomSampler(
+                1, 10000));*/
+        FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
+
+
+        InputSampler.Sampler<LongWritable, Text> sampler =
+                new InputSampler.RandomSampler<>(1,10000);
+        InputSampler.writePartitionFile(sortJob, sampler);
+
+        String partitionFile = TotalOrderPartitioner.getPartitionFile(conf);
+        URI partitionUri = new URI(partitionFile + "#" + TotalOrderPartitioner.DEFAULT_PATH);
+        DistributedCache.addCacheFile(partitionUri, conf);
 
         return sortJob;
     }
 
     public static class DebugReducer
-            extends Reducer<Text,Text,Text,Text> {
+            extends Reducer<LongWritable,Text,Text,Text> {
         private IntWritable result = new IntWritable();
 
-        public void reduce(Text key, Iterable<Text> values,
+        public void reduce(LongWritable key, Iterable<Text> values,
                            Context context
         ) throws IOException, InterruptedException {
             for(Text t : values) {
-                context.write(key, t);
+                context.write(new Text(key.toString()), t);
             }
         }
     }
