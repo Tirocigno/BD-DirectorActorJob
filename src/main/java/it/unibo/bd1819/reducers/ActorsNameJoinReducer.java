@@ -5,6 +5,7 @@ import it.unibo.bd1819.mapper.NameJoinerMapper;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
 public class ActorsNameJoinReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values,
-                       Reducer.Context context
+                       Context context
     ) throws IOException, InterruptedException {
         List<String> actorTuples = new ArrayList<>();
         List<String> nameTuples = new ArrayList<>();

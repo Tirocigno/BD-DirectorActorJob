@@ -15,6 +15,7 @@ public class Paths {
     public static String JOIN_ACTORS_DIRECTORS_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "joinactorsdirector";
     public static String THREE_ACTORS_DIRECTORS_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "threeactorsdirector";
     public static String JOIN_DIRECTORS_NAME_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "joindirectorsname";
+    public static String JOIN_ACTORS_NAME_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "joinactorsname";
     public static String MAIN_OUTPUT_PATH = GENERIC_OUTPUT_PATH + "output";
 
 }

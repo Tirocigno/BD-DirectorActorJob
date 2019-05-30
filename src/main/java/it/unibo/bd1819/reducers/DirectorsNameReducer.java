@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
+
 public class DirectorsNameReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values,
                        Context context
@@ -27,10 +29,39 @@ public class DirectorsNameReducer extends Reducer<Text, Text, Text, Text> {
         }
 
         for(String name : nameTuples) {
-            for(String directorData: directorTuples) {
-                context.write(new Text(name), new Text(directorData));
-            }
+           if(!directorTuples.isEmpty()) {
+               context.write(new Text(name), buildSortedActorString(directorTuples));
+           }
         }
 
     }
+
+    private String getMoviesDirected(List<String> directorTuples) {
+        return directorTuples.get(0).split(CUSTOM_VALUE_SEPARATOR)[2];
+    }
+
+    private Text buildSortedActorString(final List<String> directorTuples) {
+        String sortedAndAggregatedString = getMoviesDirected(directorTuples);
+        while (! directorTuples.isEmpty()) {
+            int maxCollaboration = 0;
+            String selectedDirectorTuple = "";
+            for(String tuple : directorTuples) {
+                try {
+                int currentCollaboration = Integer.parseInt(tuple.split(CUSTOM_VALUE_SEPARATOR)[1]);
+                if ( currentCollaboration > maxCollaboration ) {
+                    maxCollaboration = currentCollaboration;
+                    selectedDirectorTuple = tuple;
+                }
+            } catch (Exception e) {
+                return new Text("EXCEPTION CAUSED BY " + tuple);
+            }}
+            sortedAndAggregatedString += CUSTOM_VALUE_SEPARATOR + selectedDirectorTuple.split(CUSTOM_VALUE_SEPARATOR)[0];
+            sortedAndAggregatedString += "(" + maxCollaboration + ")";
+            directorTuples.remove(selectedDirectorTuple);
+        }
+
+        return  new Text(sortedAndAggregatedString);
+    }
+
+
 }

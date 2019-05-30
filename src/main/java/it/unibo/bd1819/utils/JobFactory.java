@@ -4,6 +4,7 @@ import it.unibo.bd1819.Main;
 import it.unibo.bd1819.mapper.*;
 import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -27,8 +28,14 @@ public class JobFactory {
     public static final Path directorActorsJoinPath = new Path(Paths.JOIN_ACTORS_DIRECTORS_OUTPUT_PATH);
     public static final Path threeActorsDirectorPath = new Path(Paths.THREE_ACTORS_DIRECTORS_OUTPUT_PATH);
     public static final Path joinDirectorsNamePath = new Path(Paths.JOIN_DIRECTORS_NAME_OUTPUT_PATH);
+    public static final Path joinActorsNamePath = new Path(Paths.JOIN_ACTORS_NAME_OUTPUT_PATH);
 
     public static Job createDirectorsMovieJoin(final Configuration conf) throws Exception {
+        FileSystem fs = FileSystem.get(conf);
+
+        deleteOutputFolder(fs, outputPath);
+        deleteOutputFolder(fs, basicprincipalsJoinPath);
+
         Job joinPrincipalBasicJob = Job.getInstance(conf, "Join between title.principals and title.basics");
 
         joinPrincipalBasicJob.setReducerClass(FindDirectorsMovieJoinReducer.class);
@@ -54,6 +61,9 @@ public class JobFactory {
 
     public static Job createAggregatorJob(final Configuration conf) throws Exception {
 
+        FileSystem fs = FileSystem.get(conf);
+        deleteOutputFolder(fs, aggregateDirectorPath);
+
         Job aggregationJob = Job.getInstance(conf, "Aggregation job for the directors");
 
         aggregationJob.setJarByClass(Main.class);
@@ -71,6 +81,11 @@ public class JobFactory {
     }
 
     public static Job createDirectorsActorsJoin(final Configuration conf) throws Exception {
+        FileSystem fs = FileSystem.get(conf);
+        deleteOutputFolder(fs, aggregateDirectorPath);
+
+        deleteOutputFolder(fs, directorActorsJoinPath);
+
         Job joinDirectorsActor = Job.getInstance(conf, "Join between Actors and Directors");
 
         joinDirectorsActor.setReducerClass(ActorDirectorJoinReducer.class);
@@ -95,6 +110,10 @@ public class JobFactory {
     }
 
     public static Job createThreeActorDirectorJob(final Configuration conf) throws Exception {
+
+        FileSystem fs = FileSystem.get(conf);
+        deleteOutputFolder(fs, threeActorsDirectorPath);
+
         Job threeDirectorsActorJob = Job.getInstance(conf, "Find for each director the three actors");
 
         threeDirectorsActorJob.setMapperClass(FindThreeActorsMapper.class);
@@ -118,6 +137,10 @@ public class JobFactory {
     }
 
     public static Job createDirectorsNameJoin(final Configuration conf) throws Exception {
+
+        FileSystem fs = FileSystem.get(conf);
+        deleteOutputFolder(fs, joinDirectorsNamePath);
+
         Job joinDirectorsName = Job.getInstance(conf, "Join between Names and Directors");
 
         joinDirectorsName.setReducerClass(DirectorsNameReducer.class);
@@ -131,12 +154,38 @@ public class JobFactory {
 
         FileOutputFormat.setOutputPath(joinDirectorsName, joinDirectorsNamePath);
 
-        MultipleInputs.addInputPath(joinDirectorsName, threeActorsDirectorPath,
+        MultipleInputs.addInputPath(joinDirectorsName, joinActorsNamePath,
                 KeyValueTextInputFormat.class, DirectorNameJoinMapper.class);
 
         MultipleInputs.addInputPath(joinDirectorsName, nameBasicsPath,
                 KeyValueTextInputFormat.class, NameJoinerMapper.class);
         return joinDirectorsName;
+    }
+
+    public static Job createActorsNameJoin(final Configuration conf) throws Exception {
+
+        FileSystem fs = FileSystem.get(conf);
+        deleteOutputFolder(fs, joinActorsNamePath);
+
+        Job joinActorsName = Job.getInstance(conf, "Join between Names and Actors");
+
+        joinActorsName.setReducerClass(ActorsNameJoinReducer.class);
+        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
+
+        joinActorsName.setJarByClass(Main.class);
+
+
+        joinActorsName.setOutputKeyClass(Text.class);
+        joinActorsName.setOutputValueClass(Text.class);
+
+        FileOutputFormat.setOutputPath(joinActorsName, joinActorsNamePath);
+
+        MultipleInputs.addInputPath(joinActorsName, threeActorsDirectorPath,
+                KeyValueTextInputFormat.class, ActorNameJoinMapper.class);
+
+        MultipleInputs.addInputPath(joinActorsName, nameBasicsPath,
+                KeyValueTextInputFormat.class, NameJoinerMapper.class);
+        return joinActorsName;
     }
 
 
@@ -172,6 +221,12 @@ public class JobFactory {
             for(Text t : values) {
                 context.write(key, t);
             }
+        }
+    }
+
+    private static void deleteOutputFolder(final FileSystem fs, final Path folderToDelete) throws IOException {
+        if (fs.exists(folderToDelete)) {
+            fs.delete(folderToDelete, true);
         }
     }
 }

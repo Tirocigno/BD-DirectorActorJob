@@ -28,11 +28,14 @@ public class FindThreeActorsReducer extends Reducer<Text,Text,Text, Text> {
         }
 
         for(int i = 0; i < CHOOSEN_ACTORS_NUMBER; i++) {
-            context.write(key, new Text(
-                 findAndRemoveMostFrequentActor(actorsDirectorFrequencyMap) +
-                 CUSTOM_VALUE_SEPARATOR +
-                 filmDirected
-            ));
+            String actor = findAndRemoveMostFrequentActor(actorsDirectorFrequencyMap);
+            if(actor != "") {
+                context.write(key, new Text(
+                        actor +
+                                CUSTOM_VALUE_SEPARATOR +
+                                filmDirected
+                ));
+            }
         }
     }
 
