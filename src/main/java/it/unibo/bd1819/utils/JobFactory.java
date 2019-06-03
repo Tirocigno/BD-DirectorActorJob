@@ -38,6 +38,12 @@ public class JobFactory {
     public static final Path joinDirectorsNamePath = new Path(Paths.JOIN_DIRECTORS_NAME_OUTPUT_PATH);
     public static final Path joinActorsNamePath = new Path(Paths.JOIN_ACTORS_NAME_OUTPUT_PATH);
 
+    /**
+     * Create a job to join the movies from title.basics and their directors from title.principals
+     * @param conf the job configuration
+     * @return a hadoop Job.
+     * @throws Exception if something is wrong in the process
+     */
     public static Job createDirectorsMovieJoin(final Configuration conf) throws Exception {
         FileSystem fs = FileSystem.get(conf);
 
@@ -47,7 +53,6 @@ public class JobFactory {
         Job joinPrincipalBasicJob = Job.getInstance(conf, "Join between title.principals and title.basics");
 
         joinPrincipalBasicJob.setReducerClass(FindDirectorsMovieJoinReducer.class);
-        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
         joinPrincipalBasicJob.setJarByClass(Main.class);
 
@@ -67,6 +72,12 @@ public class JobFactory {
         return joinPrincipalBasicJob;
     }
 
+    /**
+     * Create a job for counting how many films has a director made
+     * @param conf the job configuration.
+     * @return an hadoop Job.
+     * @throws Exception if something is wrong in the process.
+     */
     public static Job createAggregatorJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
@@ -88,6 +99,12 @@ public class JobFactory {
         return aggregationJob;
     }
 
+    /**
+     * Join the director-movies table with the actors from title.principals
+     * @param conf the job configuration.
+     * @return an Hadoop job
+     * @throws Exception if something goes wrong.
+     */
     public static Job createDirectorsActorsJoin(final Configuration conf) throws Exception {
         FileSystem fs = FileSystem.get(conf);
         deleteOutputFolder(fs, aggregateDirectorPath);
@@ -117,6 +134,12 @@ public class JobFactory {
         return joinDirectorsActor;
     }
 
+    /**
+     * Search the three most frequent actors for each director
+     * @param conf the job configuration
+     * @return an Hadoop job
+     * @throws Exception if something goes wrong
+     */
     public static Job createThreeActorDirectorJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
@@ -144,6 +167,12 @@ public class JobFactory {
         return threeDirectorsActorJob;
     }
 
+    /**
+     * Join director ids with their names
+     * @param conf the job configuration
+     * @return an Hadoop job
+     * @throws Exception if something goes wronh.
+     */
     public static Job createDirectorsNameJoin(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
@@ -170,6 +199,12 @@ public class JobFactory {
         return joinDirectorsName;
     }
 
+    /**
+     * Join actors id with their names.
+     * @param conf the job configuration
+     * @return a Hadoop job
+     * @throws Exception if something goes wrong.
+     */
     public static Job createActorsNameJoin(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
@@ -197,7 +232,12 @@ public class JobFactory {
     }
 
 
-
+    /**
+     * Sort globally the data emitted by the previous jobs.
+     * @param conf the job configuration
+     * @return a Hadoop job
+     * @throws Exception if something goes wrong.
+     */
     public static Job createSortedJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
@@ -214,29 +254,13 @@ public class JobFactory {
         sortJob.setMapOutputValueClass(Text.class);
 
         sortJob.setReducerClass(SortReducer.class);
-        //sortJob.setReducerClass(DebugReducer.class);
         sortJob.setOutputKeyClass(Text.class);
         sortJob.setOutputValueClass(Text.class);
         sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
-        //sortJob.setGroupingComparatorClass(LongWritable.DecreasingComparator.class);
-        //sortJob.setPartitionerClass(TotalOrderPartitioner.class);
-
-        /*Path partitionPath = new Path(joinDirectorsNamePath + "_part.lst");
-        TotalOrderPartitioner.setPartitionFile(
-                sortJob.getConfiguration(), partitionPath);
-        InputSampler.writePartitionFile(sortJob, new InputSampler.RandomSampler(
-                1, 10000));*/
         FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
+        //TODO CHANGE THIS
         sortJob.setNumReduceTasks(1);
-
-       /* String partitionFile = TotalOrderPartitioner.getPartitionFile(conf);
-        URI partitionUri = new URI(partitionFile + "#" + TotalOrderPartitioner.DEFAULT_PATH);
-        DistributedCache.addCacheFile(partitionUri, conf);
-
-        InputSampler.Sampler<LongWritable, Text> sampler =
-                new InputSampler.RandomSampler<>(1,10000);
-        InputSampler.writePartitionFile(sortJob, sampler);*/
 
         return sortJob;
     }
