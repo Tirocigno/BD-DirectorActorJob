@@ -20,16 +20,18 @@ public class FindThreeActorsReducer extends Reducer<Text,Text,Text, Text> {
                        Context context
     ) throws IOException, InterruptedException {
         String filmDirected = "";
+        String actorFrequency = "";
         Map<String,Integer> actorsDirectorFrequencyMap = new HashMap<>();
         for(Text value : values) {
             String[] decompressedValue = value.toString().split(CUSTOM_VALUE_SEPARATOR);
             filmDirected = decompressedValue[1];
-            processActor(actorsDirectorFrequencyMap, decompressedValue[0]);
+            actorFrequency = decompressedValue[2];
+            processActor(actorsDirectorFrequencyMap, decompressedValue[0], actorFrequency);
         }
 
         for(int i = 0; i < CHOOSEN_ACTORS_NUMBER; i++) {
             String actor = findAndRemoveMostFrequentActor(actorsDirectorFrequencyMap);
-            if(actor != "") {
+            if(!actor.equals("")) {
                 context.write(key, new Text(
                         actor +
                                 CUSTOM_VALUE_SEPARATOR +
@@ -43,12 +45,13 @@ public class FindThreeActorsReducer extends Reducer<Text,Text,Text, Text> {
      * Store the frequency of an actorID in the collection.
      * @param actorsMap the collection to store the frequencies for each actor.
      * @param actorID the actorID to process.
+     * @param actorFrequency the frequency of the actor
      */
-    private void processActor(Map<String,Integer> actorsMap, String actorID) {
+    private void processActor(Map<String,Integer> actorsMap, String actorID, String actorFrequency) {
         if (!actorsMap.containsKey(actorID)) {
-            actorsMap.put(actorID, 1);
+            actorsMap.put(actorID, Integer.parseInt(actorFrequency));
         } else {
-            actorsMap.put(actorID, actorsMap.get(actorID) + 1);
+            actorsMap.put(actorID, actorsMap.get(actorID) + Integer.parseInt(actorFrequency));
         }
     }
 
