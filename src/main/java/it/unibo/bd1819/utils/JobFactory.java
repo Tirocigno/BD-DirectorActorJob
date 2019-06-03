@@ -1,6 +1,7 @@
 package it.unibo.bd1819.utils;
 
 import it.unibo.bd1819.Main;
+import it.unibo.bd1819.combiner.FindThreeActorsCombiner;
 import it.unibo.bd1819.mapper.*;
 import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
@@ -155,6 +156,7 @@ public class JobFactory {
         threeDirectorsActorJob.setOutputKeyClass(Text.class);
         threeDirectorsActorJob.setOutputValueClass(Text.class);
 
+        threeDirectorsActorJob.setCombinerClass(FindThreeActorsCombiner.class);
         threeDirectorsActorJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
         FileInputFormat.addInputPath(threeDirectorsActorJob, directorActorsJoinPath);

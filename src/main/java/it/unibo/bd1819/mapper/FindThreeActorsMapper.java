@@ -35,6 +35,8 @@ public class FindThreeActorsMapper extends Mapper<Text, Text, Text, Text> {
      */
     private Text buildNewValue(final Text oldKey, final Text oldValue) {
         return new Text(oldKey.toString().split(CUSTOM_KEY_SEPARATOR)[1] + CUSTOM_VALUE_SEPARATOR +
-                oldValue.toString());
+                oldValue.toString() +
+                CUSTOM_VALUE_SEPARATOR +
+                1);
     }
 }
