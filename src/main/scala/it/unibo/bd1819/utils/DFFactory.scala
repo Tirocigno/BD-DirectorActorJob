@@ -12,7 +12,7 @@ object DFFactory {
   val TITLE_PRINCIPALS_TABLE_NAME = "titleprincipals"
   val NAME_BASICS_TABLE_NAME = "namebasics"
   val titleID = "tconst"
-  val nameID = "nameconst"
+  val nameID = "nconst"
   val name = "primaryName"
 
   /**
@@ -49,7 +49,7 @@ object DFFactory {
       buildTitlePrincipalsFilterCriteria())
     val titleSchemaRDD = titlePrincipalsTSV.map(_.split(FilesParsing.FIELD_SEPARATOR))
       .filter(e => titlePrincipalsFilterRowByCategory(e(3)))
-      .map(e => Row(e(0), e(2)))
+      .map(e => Row(e(0), e(2), e(3)))
     val titlePrincipalsDF = sqlContext.createDataFrame(titleSchemaRDD, titleSchemaType)
     titlePrincipalsDF.createOrReplaceTempView(tableName)
     titlePrincipalsDF
@@ -89,7 +89,7 @@ object DFFactory {
     * @return a String- Boolean filter function
     */
   private def buildTitlePrincipalsFilterCriteria() = {
-    val usefulFields = Set(titleID, nameID)
+    val usefulFields = Set(titleID, nameID, "category")
     val filterCriteria: String => Boolean = usefulFields(_)
     filterCriteria
   }
