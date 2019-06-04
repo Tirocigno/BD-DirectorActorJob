@@ -14,7 +14,7 @@ plugins {
 }
 
 group 'it.unibo.bd'
-version '0.1.0'
+version '1.0.0'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -113,6 +113,23 @@ jar {
 }*/
 
 shadowJar {
+    zip64 true
+}
+
+// Shadowing Test Sources and Dependencies
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+task mapReduceJar(type: ShadowJar) {
+    classifier = 'mr'
+    manifest.attributes 'Main-Class': 'it.unibo.bd1819.Main'
+    from(shadowJar.from())
+    zip64 true
+}
+
+task sparkJar(type: ShadowJar) {
+    classifier = 'spark'
+    manifest.attributes 'Main-Class': 'it.unibo.bd1819.mocktest.SparkMockMain'
+    from(shadowJar.from())
     zip64 true
 }
 
