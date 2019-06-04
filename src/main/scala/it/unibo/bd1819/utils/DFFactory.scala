@@ -28,7 +28,7 @@ object DFFactory {
       .filter(_(1).equals("movie"))
       .map(e => Row(e(0)))
     val titleBasicsDF = sqlContext.createDataFrame(titleSchemaRDD, titleSchemaType)
-    titleBasicsDF.registerTempTable(tableName)
+    titleBasicsDF.createOrReplaceTempView(tableName)
     titleBasicsDF
   }
 
@@ -48,8 +48,27 @@ object DFFactory {
       .filter(e => titlePrincipalsFilterRowByCategory(e(3)))
       .map(e => Row(e(0), e(2)))
     val titlePrincipalsDF = sqlContext.createDataFrame(titleSchemaRDD, titleSchemaType)
-    titlePrincipalsDF.registerTempTable(tableName)
+    titlePrincipalsDF.createOrReplaceTempView(tableName)
     titlePrincipalsDF
+  }
+
+  /**
+    * Build the Title Principals Dataframe and save the temp table.
+    * @param sparkContext the specific spark context
+    * @param sqlContext the sql contex to interrogate
+    * @param tableName the name of the table to set.
+    * @return a DF linked to the title.principals data
+    */
+  def getNameBasicsDF(sparkContext: SparkContext, sqlContext: SQLContext, tableName:String = NAME_BASICS_TABLE_NAME) = {
+    val nameBasicsTSV = sparkContext.textFile(Path.NAME_BAISCS_PATH)
+    val basicSchema = nameBasicsTSV.first()
+    val basicSchemaType = FilesParsing.StringToSchema(basicSchema, FilesParsing.FIELD_SEPARATOR ,
+      buildNameBasicsFilterCriteria())
+    val basicsSchemaRDD = nameBasicsTSV.map(_.split(FilesParsing.FIELD_SEPARATOR))
+      .map(e => Row(e(0), e(1)))
+    val nameBasicsDF = sqlContext.createDataFrame(basicsSchemaRDD, basicSchemaType)
+    nameBasicsDF.createOrReplaceTempView(tableName)
+    nameBasicsDF
   }
 
   /**
@@ -63,7 +82,7 @@ object DFFactory {
   }
 
   /**
-    * Filter the fields of the title.basics table, in order to reduce the amount of data stored in the memory
+    * Filter the fields of the title.principals table, in order to reduce the amount of data stored in the memory
     * @return a String- Boolean filter function
     */
   private def buildTitlePrincipalsFilterCriteria() = {
@@ -74,5 +93,15 @@ object DFFactory {
 
   private def titlePrincipalsFilterRowByCategory(category:String) =
     category.equals("director") || category.equals("actor") || category.equals("actress")
+
+  /**
+    * Filter the fields of the title.basics table, in order to reduce the amount of data stored in the memory
+    * @return a String- Boolean filter function
+    */
+  private def buildNameBasicsFilterCriteria() = {
+    val usefulFields = Set("nconst", "primaryName")
+    val filterCriteria: String => Boolean = usefulFields(_)
+    filterCriteria
+  }
 
 }
