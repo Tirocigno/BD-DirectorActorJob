@@ -11,6 +11,9 @@ object DFFactory {
   val TITLE_BASICS_TABLE_NAME = "titlebasics"
   val TITLE_PRINCIPALS_TABLE_NAME = "titleprincipals"
   val NAME_BASICS_TABLE_NAME = "namebasics"
+  val titleID = "tconst"
+  val nameID = "nameconst"
+  val name = "primaryName"
 
   /**
     * Build the Title Basics Dataframe and save the temp table.
@@ -76,7 +79,7 @@ object DFFactory {
     * @return a String- Boolean filter function
     */
   private def buildTitleBasicsFilterCriteria() = {
-    val usefulFields = Set("tconst")
+    val usefulFields = Set(titleID)
     val filterCriteria: String => Boolean = usefulFields(_)
     filterCriteria
   }
@@ -86,11 +89,16 @@ object DFFactory {
     * @return a String- Boolean filter function
     */
   private def buildTitlePrincipalsFilterCriteria() = {
-    val usefulFields = Set("tconst", "nconst")
+    val usefulFields = Set(titleID, nameID)
     val filterCriteria: String => Boolean = usefulFields(_)
     filterCriteria
   }
 
+  /**
+    * Filter for the title.principals tuple to be applied when the dataframe is built
+    * @param category the category of the current row
+    * @return true if the record must be kept, false otherwise
+    */
   private def titlePrincipalsFilterRowByCategory(category:String) =
     category.equals("director") || category.equals("actor") || category.equals("actress")
 
@@ -99,7 +107,7 @@ object DFFactory {
     * @return a String- Boolean filter function
     */
   private def buildNameBasicsFilterCriteria() = {
-    val usefulFields = Set("nconst", "primaryName")
+    val usefulFields = Set(nameID, name)
     val filterCriteria: String => Boolean = usefulFields(_)
     filterCriteria
   }
