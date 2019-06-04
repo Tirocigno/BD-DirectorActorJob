@@ -1,6 +1,6 @@
 package it.unibo.bd1819.utils;
 
-import it.unibo.bd1819.Main;
+import it.unibo.bd1819.ScalaMain;
 import it.unibo.bd1819.combiner.FindThreeActorsCombiner;
 import it.unibo.bd1819.mapper.*;
 import it.unibo.bd1819.reducers.*;
@@ -51,7 +51,7 @@ public class JobFactory {
 
         joinPrincipalBasicJob.setReducerClass(FindDirectorsMovieJoinReducer.class);
 
-        joinPrincipalBasicJob.setJarByClass(Main.class);
+        joinPrincipalBasicJob.setJarByClass(ScalaMain.class);
 
         joinPrincipalBasicJob.setMapOutputKeyClass(Text.class);
         joinPrincipalBasicJob.setMapOutputValueClass(Text.class);
@@ -82,7 +82,7 @@ public class JobFactory {
 
         Job aggregationJob = Job.getInstance(conf, "Aggregation job for the directors");
 
-        aggregationJob.setJarByClass(Main.class);
+        aggregationJob.setJarByClass(ScalaMain.class);
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
         aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
@@ -113,7 +113,7 @@ public class JobFactory {
         joinDirectorsActor.setReducerClass(ActorDirectorJoinReducer.class);
         //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
-        joinDirectorsActor.setJarByClass(Main.class);
+        joinDirectorsActor.setJarByClass(ScalaMain.class);
 
         joinDirectorsActor.setMapOutputKeyClass(Text.class);
         joinDirectorsActor.setMapOutputValueClass(Text.class);
@@ -148,7 +148,7 @@ public class JobFactory {
         threeDirectorsActorJob.setReducerClass(FindThreeActorsReducer.class);
         //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
-        threeDirectorsActorJob.setJarByClass(Main.class);
+        threeDirectorsActorJob.setJarByClass(ScalaMain.class);
 
         threeDirectorsActorJob.setMapOutputKeyClass(Text.class);
         threeDirectorsActorJob.setMapOutputValueClass(Text.class);
@@ -181,7 +181,7 @@ public class JobFactory {
         joinDirectorsName.setReducerClass(DirectorsNameReducer.class);
         //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
-        joinDirectorsName.setJarByClass(Main.class);
+        joinDirectorsName.setJarByClass(ScalaMain.class);
 
 
         joinDirectorsName.setOutputKeyClass(Text.class);
@@ -213,7 +213,7 @@ public class JobFactory {
         joinActorsName.setReducerClass(ActorsNameJoinReducer.class);
         //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
-        joinActorsName.setJarByClass(Main.class);
+        joinActorsName.setJarByClass(ScalaMain.class);
 
 
         joinActorsName.setOutputKeyClass(Text.class);
@@ -243,7 +243,7 @@ public class JobFactory {
 
         Job sortJob = new Job(conf);
 
-        sortJob.setJarByClass(Main.class);
+        sortJob.setJarByClass(ScalaMain.class);
         sortJob.setMapperClass(SortMapper.class);
         sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
 

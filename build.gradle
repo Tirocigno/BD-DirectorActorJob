@@ -128,7 +128,7 @@ task mapReduceJar(type: ShadowJar) {
 
 task sparkJar(type: ShadowJar) {
     classifier = 'spark'
-    manifest.attributes 'Main-Class': 'it.unibo.bd1819.mocktest.SparkMockMain'
+    manifest.attributes 'Main-Class': 'it.unibo.bd1819.ScalaMain'
     from(shadowJar.from())
     zip64 true
 }
