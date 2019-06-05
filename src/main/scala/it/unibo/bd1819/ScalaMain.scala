@@ -15,25 +15,26 @@ object ScalaMain extends App {
   val titlePrinicipalsDF = getTitlePrincipalsDF(sc, sqlContext)
   val nameBasicsDF = getNameBasicsDF(sc, sqlContext)
 
-  sqlContext.sql("select tconst from " + TITLE_BASICS_TABLE_NAME).show()
-  sqlContext.sql("select * from " + TITLE_PRINCIPALS_TABLE_NAME)
-  sqlContext.sql("select * from " + NAME_BASICS_TABLE_NAME)
 
- /*val basicNameAndPrincipalJoinDF = titleBasicsDF.join(titlePrinicipalsDF,
-    titleBasicsDF(titleID) === titlePrinicipalsDF(titleID))*/
+  //Finding all directors inside the actors
 
-  val directorsDF = sqlContext.sql("select nconst as DirectorID, count() as MoviesDirected" +
-    "  from " +
-  TITLE_PRINCIPALS_TABLE_NAME + " where category = \'director\' and tconst in (select tconst from "+
-    TITLE_BASICS_TABLE_NAME +") group by nconst")
-  //directorsDF.show()
+  val directorMoviesDF = sqlContext.sql("select "+ nameID +" as DirectorID, " + titleID + " as MovieTitle " +
+    "from " + TITLE_PRINCIPALS_TABLE_NAME +
+    " where category = 'director'")
+  directorMoviesDF.createOrReplaceTempView("DirectorMovies")
 
-  /*val namedDirectorsActorsJoinDF = basicNameAndPrincipalJoinDF.join(nameBasicsDF,
-    Seq(nameID))
+  //Finding all directors inside the actors
 
-  namedDirectorsActorsJoinDF.createOrReplaceTempView("DirectorActorJoinTable")
+  val actorMoviesDF = sqlContext.sql("select "+ nameID +" as ActorID, " + titleID + " as MovieTitle " +
+    "from " + TITLE_PRINCIPALS_TABLE_NAME +
+    " where category = 'actor' or category = 'actress' ")
+
+  actorMoviesDF.createOrReplaceTempView("ActorMovies")
+
+  val joinedActorDirectorDF = directorMoviesDF.join(actorMoviesDF, Seq("MovieTitle"))
+
+  joinedActorDirectorDF.show(100)
 
 
-  namedDirectorsActorsJoinDF.show(1000)*/
 
 }
