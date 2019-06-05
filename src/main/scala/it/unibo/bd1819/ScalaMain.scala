@@ -50,6 +50,20 @@ object ScalaMain extends App {
 
   threeActorsDirectorDF.show(1000)
 
+ val countMoviesActorsDirectorDF = threeActorsDirectorDF.join(sortedDirectorMoviesCountDF, Seq("DirectorID"))
+
+  val namedDirectorCountMoviesActorsDirectorDF = countMoviesActorsDirectorDF.join(nameBasicsDF,
+    nameBasicsDF(nameID) === countMoviesActorsDirectorDF("DirectorID"))
+
+  val namedActorNamedDirectorCountMoviesActorsDirectorDF = namedDirectorCountMoviesActorsDirectorDF.join(nameBasicsDF,
+    nameBasicsDF(nameID) === namedDirectorCountMoviesActorsDirectorDF("DirectorID"))
+
+  namedActorNamedDirectorCountMoviesActorsDirectorDF.createOrReplaceTempView("ACTOR_DIRECTOR_FINAL TABLE")
+
+  sqlContext.sql("select DirectorID, ActorID from ACTOR_DIRECTOR_FINAL TABLE order by MoviesDirected, CollabMovies desc")
+
+
+
  /* val threeDirectorActorDF = sqlContext.sql("select DirectorID, ActorID from DirectorActorMoviesTable main where " +
     "ActorID in (select ActorID from DirectorActorCollabTable collab where main.DirectorID = " +
     "collab.DirectorID order by MoviesDirected desc " +

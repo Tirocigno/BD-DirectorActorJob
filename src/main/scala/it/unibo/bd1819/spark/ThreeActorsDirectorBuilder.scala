@@ -2,7 +2,6 @@ package it.unibo.bd1819.spark
 
 import org.apache.spark.sql
 import org.apache.spark.sql.{DataFrame, SQLContext}
-import org.apache.spark.sql.execution.vectorized.ColumnarBatch.Row
 
 /**
   * This trai will implement a conversion and a filtering for a DirectorActorCollaboration count dataframe
@@ -32,8 +31,8 @@ object ThreeActorsDirectorBuilder {
       initialDataFrame.foreach( row => {
         val directorID = row.getAs[String]("DirectorID")
         val actorID = row.getAs[String]("ActorID")
-        val collabCount = row.getAs[Int]("CollabMovies")
-        if(directorActorCounterMap.contains(directorID)) {
+        val collabCount = row.getAs[Long]("CollabMovies")
+        if(!directorActorCounterMap.contains(directorID)) {
           directorActorCounterMap += (directorID -> DirectorEntryValue())
         }
         directorActorCounterMap(directorID).processNewRecord(ActorCollabRecord(actorID, collabCount))
@@ -42,7 +41,7 @@ object ThreeActorsDirectorBuilder {
       val filteredRDD = initialDataFrame.filter( row => {
         val directorID = row.getAs[String]("DirectorID")
         val actorID = row.getAs[String]("ActorID")
-        val collabCount = row.getAs[Int]("CollabMovies")
+        val collabCount = row.getAs[Long]("CollabMovies")
         directorActorCounterMap(directorID).contains(ActorCollabRecord(actorID, collabCount))
       })
 
@@ -86,5 +85,5 @@ object ThreeActorsDirectorBuilder {
 
   }
 
-  case class ActorCollabRecord(actorID:String = "", actorCollab:Int = 0)
+  case class ActorCollabRecord(actorID:String = "", actorCollab:Long = 0)
 }
