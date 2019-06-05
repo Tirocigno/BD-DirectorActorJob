@@ -20,8 +20,13 @@ object ScalaMain extends App {
 
   val directorMoviesDF = sqlContext.sql("select "+ nameID +" as DirectorID, " + titleID + " as MovieTitle " +
     "from " + TITLE_PRINCIPALS_TABLE_NAME +
-    " where category = 'director'")
-  directorMoviesDF.createOrReplaceTempView("DirectorMovies")
+    " where category = 'director' and "+titleID+" in ( select " + titleID + " from " + TITLE_BASICS_TABLE_NAME + ")")
+
+  directorActorMovieCountDF.createOrReplaceTempView("DirectorMovieTable")
+
+  val sortedDirectorMoviesCountDF = sqlContext.sql("select DirectorID, count(MovieTitle) as MoviesDirected " +
+    "from DirectorMovieTable group by DirectorID")
+
 
   //Finding all directors inside the actors
 
@@ -29,11 +34,12 @@ object ScalaMain extends App {
     "from " + TITLE_PRINCIPALS_TABLE_NAME +
     " where category = 'actor' or category = 'actress' ")
 
-  actorMoviesDF.createOrReplaceTempView("ActorMovies")
-
   val joinedActorDirectorDF = directorMoviesDF.join(actorMoviesDF, Seq("MovieTitle"))
+  joinedActorDirectorDF.createOrReplaceTempView("DirectorActorMoviesTable")
 
-  joinedActorDirectorDF.show(100)
+  val directorActorMovieCountDF = sqlContext.sql("select DirectorID, ActorID, count(distinct MovieTitle) as MoviesDirected " +
+    " from DirectorActorMoviesTable group by DirectorID, ActorID ")
+
 
 
 
