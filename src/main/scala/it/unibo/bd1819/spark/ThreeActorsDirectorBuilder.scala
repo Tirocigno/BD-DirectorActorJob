@@ -28,7 +28,38 @@ object ThreeActorsDirectorBuilder {
       scala.collection.mutable.Map()
 
     override def buildThreeActorsDirectorsDataFrame(initialDataFrame: DataFrame): DataFrame = {
-      initialDataFrame.foreach( row => {
+
+    /*  val sortingFunction = bituple:((String, Long), (String, Long)) => Boolean = bi
+
+      val N = 10
+
+      /*val sortedRDD = rdd.aggregateByKey(List[(Int, Int)]())(
+        // first function: seqOp, how to add another item of the group to the result
+        {
+          case (topSoFar, candidate) if topSoFar.size < N => candidate :: topSoFar
+          case (topTen, candidate) => (candidate :: topTen).sortWith(sortingFunction).take(N)
+        },
+        // second function: combOp, how to add combine two partial results created by seqOp
+        { case (list1, list2) => (list1 ++ list2).sortWith(sortingFunction).take(N) }
+      )*/
+
+     /* initialDataFrame.rdd.map(row => {
+        val directorID = row.getAs[String]("DirectorID")
+        val actorID = row.getAs[String]("ActorID")
+        val collabCount = row.getAs[Long]("CollabMovies")
+        (directorID, (actorID, collabCount))
+      }).groupByKey()
+        .mapValues(it => it.toList.sortBy(pair => pair._2).take(3))
+
+      initialDataFrame.rdd
+        .groupBy(row => row.getAs[String]("DirectorID"))
+        .map(directorData => directorData._2.toStream
+          .groupBy(row => row.getAs[String]("ActorID"))
+        .map(actorData => actorData._2
+          .map(row => row.getAs[Long]("CollabMovies"))))*/
+
+    }
+      /*initialDataFrame.foreach( row => {
         val directorID = row.getAs[String]("DirectorID")
         val actorID = row.getAs[String]("ActorID")
         val collabCount = row.getAs[Long]("CollabMovies")
@@ -46,7 +77,7 @@ object ThreeActorsDirectorBuilder {
       })
 
       filteredRDD
-    }
+    }*/
 
   }
 
@@ -86,4 +117,6 @@ object ThreeActorsDirectorBuilder {
   }
 
   case class ActorCollabRecord(actorID:String = "", actorCollab:Long = 0)
+
+  case class DirectorActorCountTuple(directorID:String, actorID:String, actorCollab:Long)
 }
