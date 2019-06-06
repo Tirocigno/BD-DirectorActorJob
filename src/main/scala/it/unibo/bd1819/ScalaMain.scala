@@ -16,6 +16,9 @@ object ScalaMain extends App {
   val titlePrinicipalsDF = getTitlePrincipalsDF(sc, sqlContext)
   val nameBasicsDF = getNameBasicsDF(sc, sqlContext)
 
+  sqlContext.setConf("spark.sql.shuffle.partitions", (executors*taskForExceutor).toString)
+  sqlContext.setConf("spark.default.parallelism", (executors*taskForExceutor).toString)
+
 
   //Finding all directors inside the title.principals table
 
@@ -68,7 +71,8 @@ object ScalaMain extends App {
   val resultDF = sqlContext.sql("select DirectorName, primaryName as ActorName from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table")
+  resultDF.show()
+  //resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table")
 }
 
 
