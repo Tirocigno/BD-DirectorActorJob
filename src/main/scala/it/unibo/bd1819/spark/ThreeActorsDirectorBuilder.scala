@@ -1,7 +1,7 @@
 package it.unibo.bd1819.spark
 
 import org.apache.spark.sql
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.{DataFrame, Row, SQLContext}
 
 /**
   * This trai will implement a conversion and a filtering for a DirectorActorCollaboration count dataframe
@@ -29,56 +29,20 @@ object ThreeActorsDirectorBuilder {
 
     override def buildThreeActorsDirectorsDataFrame(initialDataFrame: DataFrame): DataFrame = {
 
-    /*  val sortingFunction = bituple:((String, Long), (String, Long)) => Boolean = bi
-
-      val N = 10
-
-      /*val sortedRDD = rdd.aggregateByKey(List[(Int, Int)]())(
-        // first function: seqOp, how to add another item of the group to the result
-        {
-          case (topSoFar, candidate) if topSoFar.size < N => candidate :: topSoFar
-          case (topTen, candidate) => (candidate :: topTen).sortWith(sortingFunction).take(N)
-        },
-        // second function: combOp, how to add combine two partial results created by seqOp
-        { case (list1, list2) => (list1 ++ list2).sortWith(sortingFunction).take(N) }
-      )*/
-
-     /* initialDataFrame.rdd.map(row => {
+      val threePartitionRDD = initialDataFrame.rdd.map(row => {
         val directorID = row.getAs[String]("DirectorID")
         val actorID = row.getAs[String]("ActorID")
         val collabCount = row.getAs[Long]("CollabMovies")
         (directorID, (actorID, collabCount))
-      }).groupByKey()
-        .mapValues(it => it.toList.sortBy(pair => pair._2).take(3))
-
-      initialDataFrame.rdd
-        .groupBy(row => row.getAs[String]("DirectorID"))
-        .map(directorData => directorData._2.toStream
-          .groupBy(row => row.getAs[String]("ActorID"))
-        .map(actorData => actorData._2
-          .map(row => row.getAs[Long]("CollabMovies"))))*/
-
-    }
-      /*initialDataFrame.foreach( row => {
-        val directorID = row.getAs[String]("DirectorID")
-        val actorID = row.getAs[String]("ActorID")
-        val collabCount = row.getAs[Long]("CollabMovies")
-        if(!directorActorCounterMap.contains(directorID)) {
-          directorActorCounterMap += (directorID -> DirectorEntryValue())
+      }).groupByKey
+        .map  {
+          case (key, number) => key -> number.toList.sortBy(-_._2).take(3)
         }
-        directorActorCounterMap(directorID).processNewRecord(ActorCollabRecord(actorID, collabCount))
-      })
-
-      val filteredRDD = initialDataFrame.filter( row => {
-        val directorID = row.getAs[String]("DirectorID")
-        val actorID = row.getAs[String]("ActorID")
-        val collabCount = row.getAs[Long]("CollabMovies")
-        directorActorCounterMap(directorID).contains(ActorCollabRecord(actorID, collabCount))
-      })
-
-      filteredRDD
-    }*/
-
+        .flatMap {
+          case(key, numbers) => numbers.map( key -> _)
+        }.map( keyvaluerow =>
+      Row( keyvaluerow._1, keyvaluerow._2._1, keyvaluerow._2._2))
+      sqlContext.createDataFrame(threePartitionRDD, initialDataFrame.schema)
   }
 
   case class DirectorEntryValue(var topThree:(ActorCollabRecord, ActorCollabRecord, ActorCollabRecord) =
