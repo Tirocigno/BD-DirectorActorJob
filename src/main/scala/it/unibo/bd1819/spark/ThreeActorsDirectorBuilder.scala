@@ -24,7 +24,7 @@ object ThreeActorsDirectorBuilder {
 
   private class ThreeActorsDirectorBuilderImpl(sqlContext: SQLContext) extends ThreeActorsDirectorBuilder {
 
-    var directorActorCounterMap:scala.collection.mutable.Map[String, DirectorEntryValue] =
+    var directorActorCounterMap: scala.collection.mutable.Map[String, DirectorEntryValue] =
       scala.collection.mutable.Map()
 
     override def buildThreeActorsDirectorsDataFrame(initialDataFrame: DataFrame): DataFrame = {
@@ -35,52 +35,57 @@ object ThreeActorsDirectorBuilder {
         val collabCount = row.getAs[Long]("CollabMovies")
         (directorID, (actorID, collabCount))
       }).groupByKey
-        .map  {
+        .map {
           case (key, number) => key -> number.toList.sortBy(-_._2).take(3)
         }
         .flatMap {
-          case(key, numbers) => numbers.map( key -> _)
-        }.map( keyvaluerow =>
-      Row( keyvaluerow._1, keyvaluerow._2._1, keyvaluerow._2._2))
+          case (key, numbers) => numbers.map(key -> _)
+        }.map(keyvaluerow =>
+        Row(keyvaluerow._1, keyvaluerow._2._1, keyvaluerow._2._2))
       sqlContext.createDataFrame(threePartitionRDD, initialDataFrame.schema)
-  }
+    }
 
-  case class DirectorEntryValue(var topThree:(ActorCollabRecord, ActorCollabRecord, ActorCollabRecord) =
-                                (ActorCollabRecord(), ActorCollabRecord(), ActorCollabRecord())) {
+    case class DirectorEntryValue(var topThree: (ActorCollabRecord, ActorCollabRecord, ActorCollabRecord) =
+                                  (ActorCollabRecord(), ActorCollabRecord(), ActorCollabRecord())) {
 
-    /**
-      * Process a new record updating the topThree actors-collab records.
-      * @param record the record to process.
-      */
-    def processNewRecord(record: ActorCollabRecord): Unit = {
-      if(record.actorCollab > topThree._1.actorCollab) {
-        topThree = (record, topThree._1, topThree._2)
-      } else {
-        if(record.actorCollab > topThree._2.actorCollab) {
-          topThree = (topThree._1, record, topThree._2)
+      /**
+        * Process a new record updating the topThree actors-collab records.
+        *
+        * @param record the record to process.
+        */
+      def processNewRecord(record: ActorCollabRecord): Unit = {
+        if (record.actorCollab > topThree._1.actorCollab) {
+          topThree = (record, topThree._1, topThree._2)
         } else {
-          if(record.actorCollab > topThree._3.actorCollab) {
-            topThree = (topThree._1, topThree._2, record)
+          if (record.actorCollab > topThree._2.actorCollab) {
+            topThree = (topThree._1, record, topThree._2)
+          } else {
+            if (record.actorCollab > topThree._3.actorCollab) {
+              topThree = (topThree._1, topThree._2, record)
+            }
           }
         }
       }
+
+      /**
+        * Check if the topthree records contains a specified record
+        *
+        * @param actorCollabRecord the recors to check
+        * @return true if the record is present, false otherwise
+        */
+      def contains(actorCollabRecord: ActorCollabRecord): Boolean = {
+        actorCollabRecord.equals(topThree._1) ||
+          actorCollabRecord.equals(topThree._2) ||
+          actorCollabRecord.equals(topThree._3)
+      }
+
+
     }
 
-    /**
-      * Check if the topthree records contains a specified record
-      * @param actorCollabRecord the recors to check
-      * @return true if the record is present, false otherwise
-      */
-    def contains(actorCollabRecord: ActorCollabRecord):Boolean = {
-    actorCollabRecord.equals(topThree._1) ||
-      actorCollabRecord.equals(topThree._2) ||
-      actorCollabRecord.equals(topThree._3)
-    }
+    case class ActorCollabRecord(actorID: String = "", actorCollab: Long = 0)
 
+    case class DirectorActorCountTuple(directorID: String, actorID: String, actorCollab: Long)
 
   }
 
-  case class ActorCollabRecord(actorID:String = "", actorCollab:Long = 0)
-
-  case class DirectorActorCountTuple(directorID:String, actorID:String, actorCollab:Long)
 }
