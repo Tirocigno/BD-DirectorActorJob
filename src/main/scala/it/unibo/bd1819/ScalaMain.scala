@@ -8,6 +8,8 @@ import org.apache.spark.sql.{Row, SQLContext, SparkSession}
 
 object ScalaMain extends App {
 
+  var executors = 2
+  var taskForExceutor = 4
   val sc =  new SparkContext()
   val sqlContext = SparkSession.builder().getOrCreate().sqlContext
   val titleBasicsDF = getTitleBasicsDF(sc, sqlContext)
@@ -43,7 +45,8 @@ object ScalaMain extends App {
     " from DirectorActorMoviesTable group by DirectorID, ActorID ")
 
  //findinding for each director the three most frequent actors
-  val threeActorsDirectorDF = ThreeActorsDirectorBuilder(sqlContext).buildThreeActorsDirectorsDataFrame(directorActorMovieCountDF)
+  val threeActorsDirectorDF = ThreeActorsDirectorBuilder(sqlContext, executors * taskForExceutor)
+    .buildThreeActorsDirectorsDataFrame(directorActorMovieCountDF)
 
   //Joining the previous result with the director count.
   val countMoviesActorsDirectorDF = threeActorsDirectorDF.join(sortedDirectorMoviesCountDF, Seq("DirectorID"))
@@ -65,7 +68,7 @@ object ScalaMain extends App {
   val resultDF = sqlContext.sql("select DirectorName, primaryName as ActorName from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  //TODO WRITE THIS TABLE AS OUTPUT SOMEWHERE
+  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table")
 }
 
 

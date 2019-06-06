@@ -19,14 +19,16 @@ trait ThreeActorsDirectorBuilder extends java.io.Serializable {
 
 object ThreeActorsDirectorBuilder {
 
-  def apply(sqlContext: SQLContext): ThreeActorsDirectorBuilder =
-    new ThreeActorsDirectorBuilderImpl(sqlContext)
+  def apply(sqlContext: SQLContext, partitionNumber:Int): ThreeActorsDirectorBuilder =
+    new ThreeActorsDirectorBuilderImpl(sqlContext, partitionNumber)
 
-  private class ThreeActorsDirectorBuilderImpl(sqlContext: SQLContext) extends ThreeActorsDirectorBuilder {
+  private class ThreeActorsDirectorBuilderImpl(sqlContext: SQLContext, partitionNumber:Int) extends ThreeActorsDirectorBuilder {
 
     override def buildThreeActorsDirectorsDataFrame(initialDataFrame: DataFrame): DataFrame = {
 
-      val threePartitionRDD = initialDataFrame.rdd.map(convertToKeyValueTuple).groupByKey
+      val threePartitionRDD = initialDataFrame.rdd
+          .coalesce(partitionNumber)
+        .map(convertToKeyValueTuple).groupByKey
         .map {
           case (directorID, actorsCollabIterable) => (directorID,actorsCollabIterable.toList.sortBy(-_._2).take(3))
         }
