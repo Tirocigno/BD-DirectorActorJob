@@ -4,14 +4,12 @@ import it.unibo.bd1819.spark.ThreeActorsDirectorBuilder
 import utils.DFFactory._
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.{Row, SQLContext, SparkSession}
-import org.apache.spark.sql.functions.col
 
 
 object ScalaMain extends App {
 
   val sc =  new SparkContext()
   val sqlContext = SparkSession.builder().getOrCreate().sqlContext
-
   val titleBasicsDF = getTitleBasicsDF(sc, sqlContext)
   val titlePrinicipalsDF = getTitlePrincipalsDF(sc, sqlContext)
   val nameBasicsDF = getNameBasicsDF(sc, sqlContext)
@@ -44,29 +42,30 @@ object ScalaMain extends App {
   val directorActorMovieCountDF = sqlContext.sql("select DirectorID, ActorID, count(distinct MovieTitle) as CollabMovies " +
     " from DirectorActorMoviesTable group by DirectorID, ActorID ")
 
-  //directorActorMovieCountDF.createOrReplaceTempView("DirectorActorCollabTable")
-
+ //findinding for each director the three most frequent actors
   val threeActorsDirectorDF = ThreeActorsDirectorBuilder(sqlContext).buildThreeActorsDirectorsDataFrame(directorActorMovieCountDF)
 
-  threeActorsDirectorDF.show(1000)
+  //Joining the previous result with the director count.
+  val countMoviesActorsDirectorDF = threeActorsDirectorDF.join(sortedDirectorMoviesCountDF, Seq("DirectorID"))
 
- val countMoviesActorsDirectorDF = threeActorsDirectorDF.join(sortedDirectorMoviesCountDF, Seq("DirectorID"))
-
-  countMoviesActorsDirectorDF.show(100)
-
-  /*val namedDirectorCountMoviesActorsDirectorDF = countMoviesActorsDirectorDF.join(nameBasicsDF,
+  //Joining the previous table
+  val namedDirectorCountMoviesActorsDirectorDF = countMoviesActorsDirectorDF.join(nameBasicsDF,
     nameBasicsDF(nameID) === countMoviesActorsDirectorDF("DirectorID"))
 
-  val namedActorNamedDirectorCountMoviesActorsDirectorDF = namedDirectorCountMoviesActorsDirectorDF.join(nameBasicsDF,
-    nameBasicsDF(nameID) === namedDirectorCountMoviesActorsDirectorDF("DirectorID"))
+  namedDirectorCountMoviesActorsDirectorDF.createOrReplaceTempView("DIRECTOR_NAME_TEMP_TABLE")
+
+  val filteredDirectorNameTable = sqlContext.sql("select primaryName as DirectorName, MoviesDirected,  ActorID," +
+    " CollabMovies from DIRECTOR_NAME_TEMP_TABLE")
+
+  val namedActorNamedDirectorCountMoviesActorsDirectorDF = filteredDirectorNameTable.join(nameBasicsDF,
+    nameBasicsDF(nameID) === filteredDirectorNameTable("ActorID"))
 
   namedActorNamedDirectorCountMoviesActorsDirectorDF.createOrReplaceTempView("ACTOR_DIRECTOR_FINAL_TABLE")
 
-  sqlContext.sql("select DirectorID, ActorID from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected, CollabMovies desc")
-    .show(100)*/
+  val resultDF = sqlContext.sql("select DirectorName, primaryName as ActorName from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
+    "CollabMovies desc")
 
-
-
+  //TODO WRITE THIS TABLE AS OUTPUT SOMEWHERE
 }
 
 

@@ -26,12 +26,7 @@ object ThreeActorsDirectorBuilder {
 
     override def buildThreeActorsDirectorsDataFrame(initialDataFrame: DataFrame): DataFrame = {
 
-      val threePartitionRDD = initialDataFrame.rdd.map(row => {
-        val directorID = row.getAs[String]("DirectorID")
-        val actorID = row.getAs[String]("ActorID")
-        val collabCount = row.getAs[Long]("CollabMovies")
-        (directorID, (actorID, collabCount))
-      }).groupByKey
+      val threePartitionRDD = initialDataFrame.rdd.map(convertToKeyValueTuple).groupByKey
         .map {
           case (directorID, actorsCollabIterable) => (directorID,actorsCollabIterable.toList.sortBy(-_._2).take(3))
         }
@@ -40,6 +35,13 @@ object ThreeActorsDirectorBuilder {
         }.map(keyvaluerow =>
         Row(keyvaluerow._1, keyvaluerow._2._1, keyvaluerow._2._2))
       sqlContext.createDataFrame(threePartitionRDD, initialDataFrame.schema)
+    }
+
+    private def convertToKeyValueTuple(row: Row) = {
+      val directorID = row.getAs[String]("DirectorID")
+      val actorID = row.getAs[String]("ActorID")
+      val collabCount = row.getAs[Long]("CollabMovies")
+      (directorID, (actorID, collabCount))
     }
 
   }
