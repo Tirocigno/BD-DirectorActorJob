@@ -33,10 +33,10 @@ object ThreeActorsDirectorBuilder {
         (directorID, (actorID, collabCount))
       }).groupByKey
         .map {
-          case (directorID, actorsCollabIterable) => directorID -> actorsCollabIterable.toList.sortBy(-_._2).take(3)
+          case (directorID, actorsCollabIterable) => (directorID,actorsCollabIterable.toList.sortBy(-_._2).take(3))
         }
         .flatMap {
-          case (directorID, topThreeActorList) => topThreeActorList.map(directorID -> _)
+          case (directorID, topThreeActorList) => topThreeActorList.map((directorID,_))
         }.map(keyvaluerow =>
         Row(keyvaluerow._1, keyvaluerow._2._1, keyvaluerow._2._2))
       sqlContext.createDataFrame(threePartitionRDD, initialDataFrame.schema)
