@@ -27,6 +27,7 @@ object ThreeActorsDirectorBuilder {
     override def buildThreeActorsDirectorsDataFrame(initialDataFrame: DataFrame): DataFrame = {
 
       val threePartitionRDD = initialDataFrame.rdd
+        .coalesce(8)
         .map(convertToKeyValueTuple)
         .groupByKey(partitionNumber)
         .map {
