@@ -23,7 +23,8 @@ object DFFactory {
     * @return a DF linked to the title.basics data
     */
   def getTitleBasicsDF(sparkContext: SparkContext, sqlContext: SQLContext, tableName:String = TITLE_BASICS_TABLE_NAME) = {
-    val titleBasicsTSV = sparkContext.textFile(Path.TITLE_BASICS_PATH)
+    val titleBasicsTSV = sparkContext.textFile(Path.TITLE_BASICS_PATH, 8)
+    titleBasicsTSV.cache()
     val titleSchema = titleBasicsTSV.first()
     val titleSchemaType = FilesParsing.StringToSchema(titleSchema, FilesParsing.FIELD_SEPARATOR ,
       buildTitleBasicsFilterCriteria())
@@ -43,7 +44,8 @@ object DFFactory {
     * @return a DF linked to the title.principals data
     */
   def getTitlePrincipalsDF(sparkContext: SparkContext, sqlContext: SQLContext, tableName:String = TITLE_PRINCIPALS_TABLE_NAME) = {
-    val titlePrincipalsTSV = sparkContext.textFile(Path.TITLE_PRINCIPALS_PATH)
+    val titlePrincipalsTSV = sparkContext.textFile(Path.TITLE_PRINCIPALS_PATH, 8)
+    titlePrincipalsTSV.cache()
     val titleSchema = titlePrincipalsTSV.first()
     val titleSchemaType = FilesParsing.StringToSchema(titleSchema, FilesParsing.FIELD_SEPARATOR ,
       buildTitlePrincipalsFilterCriteria())
@@ -52,6 +54,7 @@ object DFFactory {
       .map(e => Row(e(0), e(2), e(3)))
     val titlePrincipalsDF = sqlContext.createDataFrame(titleSchemaRDD, titleSchemaType)
     titlePrincipalsDF.createOrReplaceTempView(tableName)
+    titlePrincipalsDF.cache()
     titlePrincipalsDF
   }
 
@@ -63,14 +66,14 @@ object DFFactory {
     * @return a DF linked to the title.principals data
     */
   def getNameBasicsDF(sparkContext: SparkContext, sqlContext: SQLContext, tableName:String = NAME_BASICS_TABLE_NAME) = {
-    val nameBasicsTSV = sparkContext.textFile(Path.NAME_BAISCS_PATH)
+    val nameBasicsTSV = sparkContext.textFile(Path.NAME_BAISCS_PATH, 8)
+    nameBasicsTSV.cache()
     val basicSchema = nameBasicsTSV.first()
     val basicSchemaType = FilesParsing.StringToSchema(basicSchema, FilesParsing.FIELD_SEPARATOR ,
       buildNameBasicsFilterCriteria())
     val basicsSchemaRDD = nameBasicsTSV.map(_.split(FilesParsing.FIELD_SEPARATOR))
       .map(e => Row(e(0), e(1)))
     val nameBasicsDF = sqlContext.createDataFrame(basicsSchemaRDD, basicSchemaType)
-    nameBasicsDF.createOrReplaceTempView(tableName)
     nameBasicsDF
   }
 
