@@ -146,7 +146,6 @@ public class JobFactory {
 
         threeDirectorsActorJob.setMapperClass(FindThreeActorsMapper.class);
         threeDirectorsActorJob.setReducerClass(FindThreeActorsReducer.class);
-        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
         threeDirectorsActorJob.setJarByClass(ScalaMain.class);
 
@@ -211,7 +210,6 @@ public class JobFactory {
         Job joinActorsName = Job.getInstance(conf, "Join between Names and Actors");
 
         joinActorsName.setReducerClass(ActorsNameJoinReducer.class);
-        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
         joinActorsName.setJarByClass(ScalaMain.class);
 
