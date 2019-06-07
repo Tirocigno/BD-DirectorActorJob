@@ -30,6 +30,8 @@ object ScalaMain extends App {
 
   directorMoviesDF.createOrReplaceTempView("DirectorMovieTable")
 
+  directorMoviesDF.cache()
+
   //Sort all the director by the number of movies
   val sortedDirectorMoviesCountDF = sqlContext.sql("select DirectorID, count(MovieTitle) as MoviesDirected " +
     "from DirectorMovieTable group by DirectorID")
