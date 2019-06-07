@@ -32,6 +32,7 @@ object DFFactory {
       .map(e => Row(e(0)))
     val titleBasicsDF = sqlContext.createDataFrame(titleSchemaRDD, titleSchemaType)
     titleBasicsDF.createOrReplaceTempView(tableName)
+    titleBasicsDF.cache()
     titleBasicsDF
   }
 

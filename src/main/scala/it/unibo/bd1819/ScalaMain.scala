@@ -10,7 +10,6 @@ object ScalaMain extends App {
 
   var executors = 2
   var taskForExceutor = 4
-  SparkSession.builder.config("spark.default.parallelism", (executors*taskForExceutor).toString)
   val sc =  new SparkContext()
   val sqlContext = SparkSession.builder.getOrCreate.sqlContext
   val titleBasicsDF = getTitleBasicsDF(sc, sqlContext)
