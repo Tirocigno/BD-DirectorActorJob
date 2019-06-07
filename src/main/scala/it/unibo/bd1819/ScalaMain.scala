@@ -73,8 +73,8 @@ object ScalaMain extends App {
   val resultDF = sqlContext.sql("select DirectorName, primaryName as ActorName from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  //resultDF.show()
-  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_Second2")
+  resultDF.show()
+  //resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_Second2")
 }
 
 
