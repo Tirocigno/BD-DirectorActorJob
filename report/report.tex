@@ -1,0 +1,94 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage[pdftex]{graphicx}
+
+    
+\title{\textbf{Report on Big Data project: Director-Actor-Job}}
+
+\author{
+	Federico Naldini - Mat.  0000852918}
+	
+\date{\today}
+
+\begin{document}
+\maketitle
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduzione}
+\subsection{Descrizione del dataset}
+Il dataset che ho scelto di utilizzare per questo elaborato di progetto è fornito da \href{https://www.imdb.com/}{\textit{IMDb}}, uno dei maggiori siti per la gestione di informazioni legate al mondo cinematografico.\\
+Il dataset in questione è disponibile all'indirizzo  \url{https://www.imdb.com/interfaces/} e si presenta diviso in sette files salvati in formato \textit{TSV} formattati in UTF-8. Ciascun file contiene nella prima riga l'elenco delle colonne presenti all'interno del file; all'interno del dataset sono presenti diversi valori mancanti che vengono indicati con il valore N.
+
+
+
+\subsection{Descrizione dei files}
+
+Il dataset è composto dai seguenti file:
+
+\begin{itemize}
+	\item \texttt{title.akas.tsv.gz}: contiene, per ogni titolo, i dati riguardanti le trasposizioni dell'opera in paesi differenti da quello di origine, come ad esempio il titolo nel singolo paese, la lingua in cui è stato tradotto...\\
+	\href{https://datasets.imdbws.com/title.akas.tsv.gz}{Link per il download}
+	\item \texttt{title.basics.tsv.gz}: Questo file modella l'entità titolo all'interno del dataset, tenendo traccia di tutte le informazioni per ogni titolo, tra cui la tipologia di pellicola(film, documentario, episodio di serie TV), l'anno di pubblicazione, la durata, i generi a cui appartiene la pellicola e altro ancora.\\
+	\href{https://datasets.imdbws.com/title.basics.tsv.gz}{Link per il download}
+	\item \texttt{title.crew.tsv.gz}: In questo file sono contenuti i principali registi e scrittori per ogni titolo.\\
+	\href{https://datasets.imdbws.com/title.crew.tsv.gz}{Link per il download}
+	\item \texttt{title.episode.tsv.gz}:Questo file contiene le informazioni per ciascun episodio di una serie tv, tra cui la serie madre, la stagione e il numero di episodio.\\
+	\href{https://datasets.imdbws.com/title.episode.tsv.gz}{Link per il download}
+	\item \texttt{title.principals.tsv.gz}: Questo file modella la relazione tra un titolo e le persone che vi prendono parte, contiene infatti dati quali gli identificatori di titoli e persone, il ruolo che le persone hanno avuto all'interno della produzione del titolo e il personaggio eventualmente interpretato.\\
+	\href{https://datasets.imdbws.com/title.principals.tsv.gz}{Link per il download}
+	\item \texttt{title.ratings.tsv.gz}: Per ogni titolo, mantiene l'elenco delle valutazioni espresse dagli utenti e la loro media.\\
+	\href{https://datasets.imdbws.com/title.ratings.tsv.gz}{Link per il download}
+	\item \texttt{name.basics.tsv.gz}: Contiene tutte le informazioni rigurardati attori, registi e scrittori tra cui il nome, l'anno di nascita, quello di morte e i titoli per cui è più famoso(se presenti).\\
+	\href{https://datasets.imdbws.com/name.basics.tsv.gz}{Link per il download}
+\end{itemize}
+
+\section{Data preparation}
+
+Please provide:
+\begin{itemize}
+\item The name of the reference user (i.e., the one in whose home directory is the {\sf exam} folder).
+\item The machine name (or IP address) of the reference user.
+\item The paths to each file on HDFS and/or its corresponding location in Hive (database and table); consider relying on the structured data lake organization.
+\item A subsection with details on the pre-processing of the data (only necessary if the data is dirty and/or it contains a significant amount of useless information).
+\end{itemize}
+
+
+\section{Jobs}
+
+One subsection for each job.
+
+\subsection{Job \#1: short description}
+
+Provide a brief, general description of the job. Then, one subsubsection for each implementation.
+
+\subsubsection{MapReduce/Spark(SQL) implementation}
+
+Please provide:
+\begin{itemize}
+\item The command to run the job from the reference user's home directory; explain possibly different parameter configurations.
+\item Direct link to the application's history on YARN (e.g., \url{http://isi-vclust0.csr.unibo.it:18088/history/application_15...}).
+\item Input files/tables.
+\item Output files/tables.
+\item Description of the implementation. A schematic and concise discussion is preferrable to a verbose narrative. Focus on how the data is manipulated in the job (e.g., what do keys and values represent across the different stages, what operations are carried out). 
+\item Performance considerations with respect the (potentially) carried out optimizations, e.g., in terms of:
+\begin{itemize}
+\item allocated resources and tasks;
+\item enforced partitioning;
+\item data caching;
+\item combiner usage;
+\item broadcast variables usage;
+\item any other kind of optimization.
+\end{itemize}
+\item Short extract of the output and discussion (i.e., whether there is any relevant insight obtained).
+\end{itemize}
+
+\section{Miscellaneous}
+
+If necessary, feel free to add sections to explain any other relevant information.
+
+\end{document}
