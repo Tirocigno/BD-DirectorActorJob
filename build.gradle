@@ -14,7 +14,7 @@ plugins {
 }
 
 group 'it.unibo.bd'
-version '1.0.0'
+version '2.0.0'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -94,23 +94,6 @@ dependencies {
     implementation 'commons-io:commons-io:2.5'
 }
 
-/*task run(type: JavaExec, dependsOn: classes) {
-    main = mainClassFile
-    classpath sourceSets.main.runtimeClasspath
-    classpath configurations.runtime
-}
-
-
-jar {
-    classifier = 'all'
-    manifest {
-        attributes 'Implementation-Title': title,
-                'Implementation-Version': version,
-                'Main-Class': mainClassFile
-    }
-    include{sourceSets.main.output.classesDir}
-    zip64 true
-}*/
 
 shadowJar {
     zip64 true
@@ -133,10 +116,6 @@ task sparkJar(type: ShadowJar) {
     zip64 true
 }
 
-/*
-wrapper {
-    distributionType = Wrapper.DistributionType.ALL
-}*/
 
 defaultTasks 'clean', 'build', 'javadoc', 'scaladoc', 'shadowJar'
 
