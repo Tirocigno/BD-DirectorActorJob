@@ -7,11 +7,9 @@ import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
@@ -24,16 +22,16 @@ import static it.unibo.bd1819.utils.Paths.MAIN_OUTPUT_PATH;
 
 public class JobFactory {
 
-    public static final Path titleBasicsPath = new Path(Paths.TITLE_BASICS_PATH);
-    public static final Path titlePrincipalsPath = new Path(Paths.TITLE_PRINCIPALS_PATH);
-    public static final Path nameBasicsPath = new Path(Paths.NAME_BASICS_PATH);
-    public static final Path outputPath = new Path(MAIN_OUTPUT_PATH);
-    public static final Path aggregateDirectorPath = new Path(Paths.AGGREGATED_DIRECTORS_OUTPUT_PATH);
-    public static final Path basicprincipalsJoinPath = new Path(Paths.JOIN_TITLE_BASICS_PRINCIPALS_PATH);
-    public static final Path directorActorsJoinPath = new Path(Paths.JOIN_ACTORS_DIRECTORS_OUTPUT_PATH);
-    public static final Path threeActorsDirectorPath = new Path(Paths.THREE_ACTORS_DIRECTORS_OUTPUT_PATH);
-    public static final Path joinDirectorsNamePath = new Path(Paths.JOIN_DIRECTORS_NAME_OUTPUT_PATH);
-    public static final Path joinActorsNamePath = new Path(Paths.JOIN_ACTORS_NAME_OUTPUT_PATH);
+    private static final Path titleBasicsPath = new Path(Paths.TITLE_BASICS_PATH);
+    private static final Path titlePrincipalsPath = new Path(Paths.TITLE_PRINCIPALS_PATH);
+    private static final Path nameBasicsPath = new Path(Paths.NAME_BASICS_PATH);
+    private static final Path outputPath = new Path(MAIN_OUTPUT_PATH);
+    private static final Path aggregateDirectorPath = new Path(Paths.AGGREGATED_DIRECTORS_OUTPUT_PATH);
+    private static final Path basicprincipalsJoinPath = new Path(Paths.JOIN_TITLE_BASICS_PRINCIPALS_PATH);
+    private static final Path directorActorsJoinPath = new Path(Paths.JOIN_ACTORS_DIRECTORS_OUTPUT_PATH);
+    private static final Path threeActorsDirectorPath = new Path(Paths.THREE_ACTORS_DIRECTORS_OUTPUT_PATH);
+    private static final Path joinDirectorsNamePath = new Path(Paths.JOIN_DIRECTORS_NAME_OUTPUT_PATH);
+    private static final Path joinActorsNamePath = new Path(Paths.JOIN_ACTORS_NAME_OUTPUT_PATH);
 
     /**
      * Create a job to join the movies from title.basics and their directors from title.principals
@@ -111,7 +109,6 @@ public class JobFactory {
         Job joinDirectorsActor = Job.getInstance(conf, "Join between Actors and Directors");
 
         joinDirectorsActor.setReducerClass(ActorDirectorJoinReducer.class);
-        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
         joinDirectorsActor.setJarByClass(ScalaMain.class);
 
@@ -178,7 +175,6 @@ public class JobFactory {
         Job joinDirectorsName = Job.getInstance(conf, "Join between Names and Directors");
 
         joinDirectorsName.setReducerClass(DirectorsNameReducer.class);
-        //DEBUG:joinPrincipalBasicJob.setReducerClass(DebugReducer.class);
 
         joinDirectorsName.setJarByClass(ScalaMain.class);
 
@@ -259,19 +255,6 @@ public class JobFactory {
         sortJob.setNumReduceTasks(1);
 
         return sortJob;
-    }
-
-    public static class DebugReducer
-            extends Reducer<LongWritable,Text,Text,Text> {
-        private IntWritable result = new IntWritable();
-
-        public void reduce(LongWritable key, Iterable<Text> values,
-                           Context context
-        ) throws IOException, InterruptedException {
-            for(Text t : values) {
-                context.write(new Text(key.toString()), t);
-            }
-        }
     }
 
     private static void deleteOutputFolder(final FileSystem fs, final Path folderToDelete) throws IOException {
