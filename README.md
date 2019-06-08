@@ -1,6 +1,25 @@
-# Big-Data-18-19-VSCode-template
+# Big-Data-18-19-Director-Actor-Job
 
-![GitHub](https://img.shields.io/github/license/niccomlt/Big-Data-18-19-VSCode-template.svg)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+Elaborato di progetto per l'esame Big Data, anno 2018-2019
 
-Visual Studio Code project template for Big Data course of University of Bologna, Campus of Cesena.
+## Team members
+
+ * Federico Naldini: [federico.naldini3@studio.unibo.it](mailto:federico.naldini3@studio.unibo.it)
+ 
+  ## Guida all'utilizzo
+Il progetto è importabile e compilabile mediante Gradle, in particolare sono stati disposti due tasks per 
+generare due fatjar direttamente eseguibili su piattaforma Hadoop:
+  
+  *mapReduceJar*
+  * Genera un fatjar impostando come classe principale it.unibo.bd1819.Main
+  * Esegue le computazioni necessarie alla risoluzione del job utilizzando il paradigma Map-Reduce messo a disposizione da Hadoop.
+  * Memorizza i risultati all'indirizzo hdfs::/usesr/fnaldini/mapreduce/output
+  * Non è necessario specificare alcun path di ingresso per i dati, la loro posizione è già codificata all'interno del codice
+  
+   *sparkJar*
+    * Genera un fatjar impostando come classe principale it.unibo.bd1819.ScalaMain
+    * Esegue le computazioni necessarie alla risoluzione del job utilizzando i costrutti messi a disposizione da SparkSQL.
+    * Memorizza i risultati su Hive nella tabella: fnaldini_director_actors_db.actor_director_table.
+    * Non è necessario specificare alcun path di ingresso per i dati, la loro posizione è già codificata all'interno del codice
+
+ 
