@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[hidelinks]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage[pdftex]{graphicx}
@@ -47,26 +47,67 @@ Il dataset è composto dai seguenti file:
 	\href{https://datasets.imdbws.com/name.basics.tsv.gz}{Link per il download}
 \end{itemize}
 
-\section{Data preparation}
+\section{Preparazione dei files}
 
-Please provide:
-\begin{itemize}
-\item The name of the reference user (i.e., the one in whose home directory is the {\sf exam} folder).
-\item The machine name (or IP address) of the reference user.
-\item The paths to each file on HDFS and/or its corresponding location in Hive (database and table); consider relying on the structured data lake organization.
-\item A subsection with details on the pre-processing of the data (only necessary if the data is dirty and/or it contains a significant amount of useless information).
-\end{itemize}
+\subsection{Posizione degli eseguibili, files di input/output e configurazioni necessarie}
+La cartella \textit{exams} contenente i fatjar eseguibili si trova all'indirizzo \url{isi-vclust7//home/fnaldini}, al suo interno sono contenuti due jar eseguibili(contenenti uno l'implementazione del job mediante\textit{Map-Reduce}, l'altro per \textit{SparkSQL}).\\
+Per quanto riguarda invece i singoli file di input-output, essi sono memorizzati su filesystem distribuito hdfs: tutti gli input condividono un path comune, ovvero \texttt{hdfs:///user/fnaldini/bigdata/dataset/}, all'interno di quest'ultima cartella,sono state create tante cartelle quanti i file di input rilevanti per la risoluzione del job assegnato, aventi ciascuna lo stesso nome del file contenuto.\\
+Trattando dell'output infine, i risultati parziali dell'implementazione \textit{Map-Reduce}  sono salvati all'interno di diverse cartelle all'indirizzo: \texttt{hdfs:///user/fnaldini/mapreduce/}, i risultati finali sono disponibili dentro la sottocartella \texttt{output}; il job implementato con \textit{SparkSQL} produce come output una tabella che viene salvata sulla piattaforma \textit{HIVE} all'indirizzo \texttt{fnaldini\_director\_actors\_db.actor\_director\_table}
+
+\subsection{Preprocessing dei dati}
+Come accenato nella sezione 2.1, alcuni dati all'interno del dataset risultavano incompleti, tuttavia queste mancanze riguardavano principalmente dati di importanza secondaria per il job da realizzare(ad esempio, sono assenti diverse date di nascita e di morte di molti attori, attrici e registi vissuti all'inizio del 900), mentre al contrario i dati necessari al corretto funzionamento del job non risultavano lacunosi nella loro espressività.
+
 
 
 \section{Jobs}
 
-One subsection for each job.
 
-\subsection{Job \#1: short description}
+\subsection{Job: Trovare i tre attori/attrici diretti più di frequente per ogni regista, ordinando i registi per numero di film girati}
 
-Provide a brief, general description of the job. Then, one subsubsection for each implementation.
+Il job concordato coi docenti consisteva nella realizzazione di una ricerca che per ogni regista presente all'interno del dataset trovasse i tre attori/attrici con cui questi avesse lavorato più frequentemente, ordinando poi i registi per numero di film diretti.\\
+Il primo passo da me compiuto è stato lo studio dei vari files e la modellazione dello schema relazionale del database, da questo ho dedotto che, sui sette files disponibili, solo tre erano necessari per la realizzazione del mio job: \texttt{title.basics}, \texttt{title.principals} e infine \texttt{name.basics}.
+Il piano di esecuzione di massima che ho pensato è stato il seguente: estrarre i tutti i film da \texttt{title.basics} e tutti i registi da \texttt{title.principals}, eseguire un passo di join e raggruppare i film per regista, in modo da poter contare i film diretti da ogni regista; successivamente il risultato di questa operazione sarebbe stato messo in join con tutti gli attori/attrici, ottenuti filtrando il files \texttt{title.principals}, successivamente avrei eseguito la ricerca degli attori con il maggior numero di collaborazioni per ogni regista; una volta terminata quest'operazione, avrei poi proceduto eseguendo un join tra l'output dei passi precedenti e \texttt{name.basics} così da sostituire i nomi di attori e registi ai loro codici, infine in un ultimo passo avrei eseguito l'ordinamento dei risultati sulla base del numero di
+film diretti da ogni regista.\\
+Durante la fase di pianificazione ho cercato di anticipare il più possibile i passi che includevano un filtraggio e/o una riduzione della dimensione del dataset, mentre ho posticipato il più possibile quelli che richiedevano una sua espansione(come ad esempio, le operazioni di join) 
 
-\subsubsection{MapReduce/Spark(SQL) implementation}
+\subsubsection{MapReduce implementation}
+
+\begin{itemize}
+	\item \textit{Comando per eseguire il Job}: hadoop jar director-actor-job-x.x.x-mr.jar, non è richiesto nessun parametro di configurazione in entrata.
+	\item \textit{Link all'esecuzione su YARN}:
+	\begin{itemize}
+		\item Fist link;
+		\item Second Job;
+		\item Third Job;
+		\item Fourth job;
+		\item broadcast variables usage;
+		\item any other kind of optimization.
+	\end{itemize}
+	
+	\item \textit{Files/ Tabelle di Input}:\texttt{title.basics}, \texttt{title.principals}, \texttt{name.basics}.
+	\item \textit{Files/Tabelle di Output}: Viene generato un output per ogni passo di Map-Reduce che viene concluso, l'output finale è nella forma: 
+	\texttt{DirectorName(DirectedMoviesCount)    ActorName1(MoviesCount1);...; ActorNameN(MoviesCountN)}.
+	Dove MoviesCount rappresenta il numero di film in cui attore e regista hanno collaborato.
+	\item \textit{Descrizione dell'implementazione}: Il job è stato realizzato con sette passi di \texttt{Map-Reduce}, cercando di aggregare il più possibile operazioni compatibili all'interno di uno stesso passo. Tutti i job, fatta eccezione per l'ultimo, leggono e producono dati formattati secondo il paradigma \textit{Key-Value}, utilizzando la classe \texttt{Text} come tipo di dato, visto la preponderanza di valori testuali all'interno dei dati da manipolare.\\
+	I sette job in gioco sono i seguenti: 
+		\begin{itemize}
+		\item \texttt{Join between title.principals and title.basics}: questo job filtra in fase di mapping title.basics estraendo solo i film e title.principals estraendo solo i registi, dopodiché emette in output delle tuple aventi come chiave l'ID del regista, come valore un film da esso diretto;
+		\item \texttt{Aggregation job for the directors}: esegue un aggregazione associando a ogni regista il numero di film diretti, l'output è una tupla nella forma IDFilm, Regista;FilmDiretti;
+		\item  \texttt{Join between Actors and Directors}: Esegue un join tra l'output della fase precente e tutti gli attori presenti in title.basics, restituisce delle tuple nella forma IDRegista:IDAttore, FilmDiretti.
+		\item \texttt{Find for each director the three actors}: Questo è il job più importante tra tutti,durante la fase di Mapping proietta i dati utilizzando come chiave l'ID di un regista e in fase di reduce colleziona per ogni attore il numero di volte che compare, utilizzando una mappa come struttura di appoggio; dopodiché estrae dalla mappa i tre attori con frequenza maggiore e li scrive in output.
+		\item  \texttt{Join between Names and Actors}: proiettando l'output della fase precednte sull'ID degli attori, esegue il join con la tabella name.basics, così da sostituire l'ID dei ogni attore col proprio nome.
+		\item \texttt{Join between Names and Directors}: esegue un operazione analoga alla precedente, ma considerando l'ID dei registi, inoltre riduce a uno il numero di tuple per ogni regista, combinando tra loro le varie tuple corrispondenti a uno stesso regista.
+		\item \texttt{Sort Job}: Utilizzando come chiave il numero di film diretti da ogni regista, ordina globalmente il risultato finale.
+		
+		
+	\end{itemize}
+	\item \textit{Considerazioni sulle performance}: Ogni job di quelli elencati sopra ha un tempo di esecuzione compreso tra un minimo di 30 s per i più veloci e un massimo di un minuto per quelli più lenti, rendendo così il tempo di esecuzione complessivo attorno ai 6 minuti.\\
+	Sicuramente la presenza di due operazioni di Join consecutive, prima sulla base degli ID degli attori e in secondo luogo sull'ID dei registi può essere motivo di dubbio, tuttavia, nonostante sia in teoria possibile ottenere lo stesso risultato dei due join con un solo passo, non è conveniente: infatti bisognerebbe anticipare tale join a prima dell'operazione di filtraggio dei tre attori per ogni regista, operazione che riduce considerevolmente le dimensioni dei dati in gioco e rende di conseguenza più leggera l'operazione di Join.\\
+	Per come ho implementato i diversi job, mi è stato possibile applicare un combiner per ridurre i tempi di calcolo nel job che si occupava di trovare per ogni regista i tre attori: in quella situazione era infatti possibile aggregare parzialmente il numero di collaborazioni tra attore e regista a livello di mapper senza inficiare il risultato, analogamente mi è stato possibile applicare un combiner nel job che si occupava di contare il numero di film per ogni regista.
+	Ho provato infine a eseguire un paio di operazioni di tuning sul numero dei reducer da disporre in gioco, partendo da un numero massimo di 20(impostato di default da Hadoop) fino a giungere a numeri piuttosto bassi, come 2 o 3: quello che ho notato è che riducendo il numero di reducers, le prestazioni globali rimanevano più o meno costanti, ma al calare del numero di questi ultimi, i job che si occupavano di join tendevano a aumentare i loro tempi, mentre gli altri tendevano a ridurli. 
+\end{itemize}
+
+\subsubsection{SparkSQL implementation}
 
 Please provide:
 \begin{itemize}
