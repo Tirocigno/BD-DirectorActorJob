@@ -2,7 +2,6 @@ package it.unibo.bd1819.utils;
 
 import it.unibo.bd1819.Main;
 import it.unibo.bd1819.ScalaMain;
-import it.unibo.bd1819.combiner.AggregateDirectorsCombiner;
 import it.unibo.bd1819.combiner.FindThreeActorsCombiner;
 import it.unibo.bd1819.mapper.*;
 import it.unibo.bd1819.reducers.*;
@@ -86,7 +85,6 @@ public class JobFactory {
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
         aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
-        aggregationJob.setCombinerClass(AggregateDirectorsCombiner.class);
         aggregationJob.setReducerClass(AggregateDirectorsReducer.class);
         aggregationJob.setOutputKeyClass(Text.class);
         aggregationJob.setOutputValueClass(Text.class);

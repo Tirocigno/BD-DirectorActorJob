@@ -71,11 +71,11 @@ object ScalaMain extends App {
 
   namedActorNamedDirectorCountMoviesActorsDirectorDF.createOrReplaceTempView("ACTOR_DIRECTOR_FINAL_TABLE")
 
-  val resultDF = sqlContext.sql("select DirectorName, primaryName as ActorName from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
+  val resultDF = sqlContext.sql("select DirectorName, MoviesDirected, primaryName as ActorName, CollabMovies" +
+    " from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  resultDF.show()
-  //resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_Second2")
+  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table")
 }
 
 
