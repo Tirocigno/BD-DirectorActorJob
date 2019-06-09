@@ -75,7 +75,9 @@ object ScalaMain extends App {
     " from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table")
+  resultDF.show()
+
+  //resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_definitive")
 }
 
 

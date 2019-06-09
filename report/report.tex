@@ -76,12 +76,13 @@ Durante la fase di pianificazione ho cercato di anticipare il più possibile i p
 	\item \textit{Comando per eseguire il Job}: hadoop jar director-actor-job-x.x.x-mr.jar, non è richiesto nessun parametro di configurazione in entrata.
 	\item \textit{Link all'esecuzione su YARN}:
 	\begin{itemize}
-		\item Fist link;
-		\item Second Job;
-		\item Third Job;
-		\item Fourth job;
-		\item broadcast variables usage;
-		\item any other kind of optimization.
+		\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3634};
+		\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3635}; 
+		\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3636};
+		\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3637};
+		\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3638};
+		\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3639};
+			\item \url{http://isi-vclust0.csr.unibo.it:19888/jobhistory/job/job\_1552648127930\_3640};
 	\end{itemize}
 	
 	\item \textit{Files/ Tabelle di Input}:\texttt{title.basics}, \texttt{title.principals}, \texttt{name.basics}.
@@ -109,27 +110,36 @@ Durante la fase di pianificazione ho cercato di anticipare il più possibile i p
 
 \subsubsection{SparkSQL implementation}
 
-Please provide:
 \begin{itemize}
-\item The command to run the job from the reference user's home directory; explain possibly different parameter configurations.
-\item Direct link to the application's history on YARN (e.g., \url{http://isi-vclust0.csr.unibo.it:18088/history/application_15...}).
-\item Input files/tables.
-\item Output files/tables.
-\item Description of the implementation. A schematic and concise discussion is preferrable to a verbose narrative. Focus on how the data is manipulated in the job (e.g., what do keys and values represent across the different stages, what operations are carried out). 
-\item Performance considerations with respect the (potentially) carried out optimizations, e.g., in terms of:
-\begin{itemize}
-\item allocated resources and tasks;
-\item enforced partitioning;
-\item data caching;
-\item combiner usage;
-\item broadcast variables usage;
-\item any other kind of optimization.
+	\item \textit{Comando per eseguire il Job}: spark2-shell director-actor-job-x.x.x-spark.jar, non è richiesto nessun parametro di configurazione in entrata.
+	\item \textit{Link all'esecuzione su YARN}:
+	\url{}
+	
+	\item \textit{Files/ Tabelle di Input}:\texttt{title.basics}, \texttt{title.principals}, \texttt{name.basics}.
+	\item \textit{Files/Tabelle di Output}: L'output consiste in una tabella a due colonne, DirectorName e ActorName, salvata su \textit{Hive} all'indirizzo  \texttt{fnaldini\_director\_actors\_db.actor\_director\_table}
+	\item \textit{Descrizione dell'implementazione}: Il job è stato realizzato sfruttando appieno le potenzialità di SparkSQL, in particolare concentrandosi sull'utilizzo dei \textit{Dataframe} e l'utilizzo del motore di query SQL messo a disposizione da SparkSQL.
+	Lo schema di risoluzione del problema rimane praticamente lo stesso descritto nella sezione 3.1; tali passaggi sono però stati effettuati utilizzando l'espressività del linguaggio SQL, analogamente a quanto visto a lezione durante sia la lezione su SparkSQL sia durante l'analisi del caso di studio.\\
+	Per quanto l'obiettivo fissato fosse la risoluzione del problema utilizzando solo query e costrutti SQL, così da mostrare appieno le potenzialità di SparkSQL, non è stato possibile raggiungere tale risultato: questo a causa di un limite noto di SparkSQL che non permette di richiamare campi appartenenti a una tabella esterna all'interno di una query annidata, di conseguenza il passo di ricerca di tre attori per ogni regista risultava non realizzabile con primitive sql.\\
+	Per risolvere questo problema ho pensato così di utilizzare le primitive di Spark, trasformando l'input della fase in un \texttt{RDD} e ritrasformandolo in un \texttt{DF} alla fine della computazione, così da poter rimanere il più fedele possibile all'obiettivo sopracitato.
+	
+	\item \textit{Considerazioni sulle performance}: Pur non stravolgendo il piano di esecuzione presentato nella sezione 3.1, con alcuni accorgimenti sono riuscito a migliorare considerevolmente il tempo di esecuzione, che da 6-7 minuti è calato a circa 4.
+	
+	\begin{itemize}
+		\item \textit{Numero di tasks per stage}: abbassando il numero di task per stage da 200 a 8(numero calcolato considerando 4 cores per 2 executors) il tempo di esecuzione si è abbassato considerevolmente.
+		
+			\item \textit{Caching dei dataframe}: Salvando in cache alcuni tra i dataframe utilizzati più volte all'interno del programma, le performance sono ulteriormente migliorate,in particolare sono stati salvati il dataframe costruito filtrando \texttt{title.principals} sulla categoria registi, il dataframe \texttt{title.principals} e infine il dataframe ottenuto da \texttt{name.basics}
+			
+			\item \textit{Considerazioni sui join}: Come nella realizzazione dell'implementazione in map reduce, anche qui mi sono domandato se potesse esserci un modo per velocizzare la doppia operazione di join: tra le tabelle in gioco, name.basics compare in entrambi i passi di join e non necessita di particolari operazioni di processing prima di essere utilizzata, se tramite un join broadcast si potesse inviare una copia della tabella a ogni nodo e riuscire a riutilizzarla successivamente, allora si avrebbe un notevole speedup delle performance; purtroppo al momento non c'è modo di eseguire l'operazione sopra descritta(fonte: \url{https://issues.apache.org/jira/browse/SPARK-3863})
+	\end{itemize}
+	
+	
 \end{itemize}
-\item Short extract of the output and discussion (i.e., whether there is any relevant insight obtained).
-\end{itemize}
+
 
 \section{Miscellaneous}
 
-If necessary, feel free to add sections to explain any other relevant information.
+\subsection{Problematiche col Dataset}
+A metà del lavoro circa, ho scoperto un problema con il dataset, in particolare con la tabella \texttt{title.principals}: invece di contenere tutte le associazioni tra opere e attori/registi, contiene solamente tre o quattro attori per ogni pellicola, questo implica che il risultato della query finale venga compromesso, poiché il job tiene conto solo degli attori che hanno recitato con ruolin da protagonisti/ coprotagonisti all'interno dei film.//
+Ad esempio per il regista \href{https://www.imdb.com/name/nm0634240/}{Christopher Nolan} l'attore con cui risultano più collaborazioni risulta \href{https://www.imdb.com/name/nm0000288/}{Christian Bale}, con cui risultano 4 film assieme(che sono il numero di film diretti da Nolan in cui Bale ha ruolo da protagonista), mentre invece \href{https://www.imdb.com/name/nm0000323/}{Micheal Caine}, attore con molte più collaborazioni di Bale con Nolan ma spesso come interprete di personaggi secondari, risulta solo terzo
 
 \end{document}
