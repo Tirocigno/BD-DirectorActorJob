@@ -241,7 +241,9 @@ public class JobFactory {
     public static Job createSortJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
+        Path partitionPath = new Path(Paths.GENERIC_OUTPUT_PATH + "partition", "part.lst");
         deleteOutputFolder(fs, outputPath);
+        deleteOutputFolder(fs, partitionPath);
 
         Job sortJob = Job.getInstance(conf, "Sort Job");
 
@@ -250,18 +252,16 @@ public class JobFactory {
         sortJob.setInputFormatClass(SequenceFileInputFormat.class);
 
 
-        sortJob.setMapOutputKeyClass(LongWritable.class);
+        sortJob.setMapOutputKeyClass(IntWritable.class);
         sortJob.setMapOutputValueClass(Text.class);
 
         sortJob.setReducerClass(SortReducer.class);
         sortJob.setOutputKeyClass(Text.class);
         sortJob.setOutputValueClass(Text.class);
-        sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
         FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
 
         sortJob.setNumReduceTasks(3);
-        Path partitionPath = new Path(Paths.GENERIC_OUTPUT_PATH + "/partition", "part.lst");
         TotalOrderPartitioner.setPartitionFile(sortJob.getConfiguration(), partitionPath);
 
         InputSampler.Sampler<IntWritable, Text> sampler = new InputSampler.RandomSampler<>(1, 1000);

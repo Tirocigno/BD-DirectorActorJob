@@ -24,7 +24,7 @@ public class SortReducer extends Reducer<IntWritable, Text, Text, Text> {
 
     private Text extractNewValue(final Text oldValue, final IntWritable moviesDirected) {
         final String directorID = oldValue.toString().split(CUSTOM_VALUE_SEPARATOR)[0] + CUSTOM_VALUE_SEPARATOR;
-        return new Text("Movies Directed: " + moviesDirected.get() + ", Most Frequently actors: " +
+        return new Text("Movies Directed: " + (-moviesDirected.get()) + ", Most Frequently actors: " +
                 oldValue.toString().replace(directorID,""));
     }
 }
