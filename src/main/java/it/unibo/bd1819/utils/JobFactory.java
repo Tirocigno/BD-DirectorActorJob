@@ -1,5 +1,6 @@
 package it.unibo.bd1819.utils;
 
+import it.unibo.bd1819.Main;
 import it.unibo.bd1819.ScalaMain;
 import it.unibo.bd1819.combiner.FindThreeActorsCombiner;
 import it.unibo.bd1819.mapper.*;
@@ -7,13 +8,18 @@ import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
+import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 
 
 import java.io.IOException;
@@ -49,7 +55,7 @@ public class JobFactory {
 
         joinPrincipalBasicJob.setReducerClass(FindDirectorsMovieJoinReducer.class);
 
-        joinPrincipalBasicJob.setJarByClass(ScalaMain.class);
+        joinPrincipalBasicJob.setJarByClass(Main.class);
 
         joinPrincipalBasicJob.setMapOutputKeyClass(Text.class);
         joinPrincipalBasicJob.setMapOutputValueClass(Text.class);
@@ -80,7 +86,7 @@ public class JobFactory {
 
         Job aggregationJob = Job.getInstance(conf, "Aggregation job for the directors");
 
-        aggregationJob.setJarByClass(ScalaMain.class);
+        aggregationJob.setJarByClass(Main.class);
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
         aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
@@ -110,7 +116,7 @@ public class JobFactory {
 
         joinDirectorsActor.setReducerClass(ActorDirectorJoinReducer.class);
 
-        joinDirectorsActor.setJarByClass(ScalaMain.class);
+        joinDirectorsActor.setJarByClass(Main.class);
 
         joinDirectorsActor.setMapOutputKeyClass(Text.class);
         joinDirectorsActor.setMapOutputValueClass(Text.class);
@@ -144,7 +150,7 @@ public class JobFactory {
         threeDirectorsActorJob.setMapperClass(FindThreeActorsMapper.class);
         threeDirectorsActorJob.setReducerClass(FindThreeActorsReducer.class);
 
-        threeDirectorsActorJob.setJarByClass(ScalaMain.class);
+        threeDirectorsActorJob.setJarByClass(Main.class);
 
         threeDirectorsActorJob.setMapOutputKeyClass(Text.class);
         threeDirectorsActorJob.setMapOutputValueClass(Text.class);
@@ -178,8 +184,9 @@ public class JobFactory {
 
         joinDirectorsName.setJarByClass(ScalaMain.class);
 
-
-        joinDirectorsName.setOutputKeyClass(Text.class);
+        joinDirectorsName.setMapOutputKeyClass(Text.class);
+        joinDirectorsName.setMapOutputValueClass(Text.class);
+        joinDirectorsName.setOutputKeyClass(IntWritable.class);
         joinDirectorsName.setOutputValueClass(Text.class);
 
         FileOutputFormat.setOutputPath(joinDirectorsName, joinDirectorsNamePath);
@@ -189,6 +196,7 @@ public class JobFactory {
 
         MultipleInputs.addInputPath(joinDirectorsName, nameBasicsPath,
                 KeyValueTextInputFormat.class, NameJoinerMapper.class);
+        joinDirectorsName.setOutputFormatClass(SequenceFileOutputFormat.class);
         return joinDirectorsName;
     }
 
@@ -207,7 +215,7 @@ public class JobFactory {
 
         joinActorsName.setReducerClass(ActorsNameJoinReducer.class);
 
-        joinActorsName.setJarByClass(ScalaMain.class);
+        joinActorsName.setJarByClass(Main.class);
 
 
         joinActorsName.setOutputKeyClass(Text.class);
@@ -230,29 +238,36 @@ public class JobFactory {
      * @return a Hadoop job
      * @throws Exception if something goes wrong.
      */
-    public static Job createSortedJob(final Configuration conf) throws Exception {
+    public static Job createSortJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
+        Path partitionPath = new Path(Paths.GENERIC_OUTPUT_PATH + "partition", "part.lst");
         deleteOutputFolder(fs, outputPath);
+        deleteOutputFolder(fs, partitionPath);
 
-        Job sortJob = new Job(conf);
+        Job sortJob = Job.getInstance(conf, "Sort Job");
 
         sortJob.setJarByClass(ScalaMain.class);
         sortJob.setMapperClass(SortMapper.class);
-        sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
+        sortJob.setInputFormatClass(SequenceFileInputFormat.class);
 
 
-        sortJob.setMapOutputKeyClass(LongWritable.class);
+        sortJob.setMapOutputKeyClass(IntWritable.class);
         sortJob.setMapOutputValueClass(Text.class);
 
         sortJob.setReducerClass(SortReducer.class);
         sortJob.setOutputKeyClass(Text.class);
         sortJob.setOutputValueClass(Text.class);
-        sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
         FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
-        //TODO CHANGE THIS
-        sortJob.setNumReduceTasks(1);
+
+        sortJob.setNumReduceTasks(3);
+        TotalOrderPartitioner.setPartitionFile(sortJob.getConfiguration(), partitionPath);
+
+        InputSampler.Sampler<IntWritable, Text> sampler = new InputSampler.RandomSampler<>(1, 1000);
+        InputSampler.writePartitionFile(sortJob, sampler);
+
+        sortJob.setPartitionerClass(TotalOrderPartitioner.class);
 
         return sortJob;
     }

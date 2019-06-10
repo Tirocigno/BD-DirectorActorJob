@@ -12,7 +12,9 @@ import java.util.List;
 
 import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
-
+/**
+ * Merge the record with the actor's names.
+ */
 public class ActorsNameJoinReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values,
                        Context context

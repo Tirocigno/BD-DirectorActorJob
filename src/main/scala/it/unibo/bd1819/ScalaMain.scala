@@ -4,14 +4,25 @@ import it.unibo.bd1819.spark.ThreeActorsDirectorBuilder
 import utils.DFFactory._
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.{Row, SQLContext, SparkSession}
+import org.rogach.scallop.ScallopConf
 
 
 object ScalaMain extends App {
 
   var executors = 2
   var taskForExceutor = 4
+
   val sc =  new SparkContext()
   val sqlContext = SparkSession.builder.getOrCreate.sqlContext
+  val conf = new Conf(args)
+
+  if(conf.executors.supplied) {
+    executors = conf.executors()
+  }
+
+  if(conf.tasks.supplied) {
+    taskForExceutor = conf.tasks()
+  }
   val titleBasicsDF = getTitleBasicsDF(sc, sqlContext)
   val titlePrinicipalsDF = getTitlePrincipalsDF(sc, sqlContext)
   val nameBasicsDF = getNameBasicsDF(sc, sqlContext)
@@ -71,11 +82,22 @@ object ScalaMain extends App {
 
   namedActorNamedDirectorCountMoviesActorsDirectorDF.createOrReplaceTempView("ACTOR_DIRECTOR_FINAL_TABLE")
 
-  val resultDF = sqlContext.sql("select DirectorName, primaryName as ActorName from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
+  val resultDF = sqlContext.sql("select DirectorName, MoviesDirected, primaryName as ActorName, CollabMovies" +
+    " from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  resultDF.show()
-  //resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_Second2")
+  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_definitive")
+}
+
+/**
+  * Class to be used to parse CLI commands, the values declared inside specify name and type of the arguments to parse.
+  *
+  * @param arguments the programs arguments as an array of strings.
+  */
+class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
+  val executors = opt[Int]()
+  val tasks = opt[Int]()
+  verify()
 }
 
 

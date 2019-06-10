@@ -5,6 +5,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
+/**
+ * Map all the DirectorTuple adding a prefix to distinguish them on the reduce phase
+ */
 public class DirectorNameJoinMapper  extends Mapper<Text, Text, Text, Text> {
 
     public final static String DIRECTOR_JOIN_PREFIX = "drjnprx";

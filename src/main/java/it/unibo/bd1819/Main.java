@@ -1,12 +1,9 @@
 package it.unibo.bd1819;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.mapreduce.Job;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +23,14 @@ public class Main {
         jobs.add(createThreeActorDirectorJob(conf));
         jobs.add(createActorsNameJoin(conf));
         jobs.add(createDirectorsNameJoin(conf));
-        jobs.add(createSortedJob(conf));
 
         for (Job job: jobs) {
             if (!job.waitForCompletion(true)) {
                 System.exit(1);
             }
         }
+
+        createSortJob(conf).waitForCompletion(true);
     }
 }
 
