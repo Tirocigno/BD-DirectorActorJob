@@ -1,5 +1,6 @@
 package it.unibo.bd1819.utils;
 
+import it.unibo.bd1819.Main;
 import it.unibo.bd1819.ScalaMain;
 import it.unibo.bd1819.combiner.FindThreeActorsCombiner;
 import it.unibo.bd1819.mapper.*;
@@ -49,7 +50,7 @@ public class JobFactory {
 
         joinPrincipalBasicJob.setReducerClass(FindDirectorsMovieJoinReducer.class);
 
-        joinPrincipalBasicJob.setJarByClass(ScalaMain.class);
+        joinPrincipalBasicJob.setJarByClass(Main.class);
 
         joinPrincipalBasicJob.setMapOutputKeyClass(Text.class);
         joinPrincipalBasicJob.setMapOutputValueClass(Text.class);
@@ -80,7 +81,7 @@ public class JobFactory {
 
         Job aggregationJob = Job.getInstance(conf, "Aggregation job for the directors");
 
-        aggregationJob.setJarByClass(ScalaMain.class);
+        aggregationJob.setJarByClass(Main.class);
         aggregationJob.setMapperClass(AggregateDirectorsMapper.class);
         aggregationJob.setInputFormatClass(KeyValueTextInputFormat.class);
 
@@ -110,7 +111,7 @@ public class JobFactory {
 
         joinDirectorsActor.setReducerClass(ActorDirectorJoinReducer.class);
 
-        joinDirectorsActor.setJarByClass(ScalaMain.class);
+        joinDirectorsActor.setJarByClass(Main.class);
 
         joinDirectorsActor.setMapOutputKeyClass(Text.class);
         joinDirectorsActor.setMapOutputValueClass(Text.class);
@@ -144,7 +145,7 @@ public class JobFactory {
         threeDirectorsActorJob.setMapperClass(FindThreeActorsMapper.class);
         threeDirectorsActorJob.setReducerClass(FindThreeActorsReducer.class);
 
-        threeDirectorsActorJob.setJarByClass(ScalaMain.class);
+        threeDirectorsActorJob.setJarByClass(Main.class);
 
         threeDirectorsActorJob.setMapOutputKeyClass(Text.class);
         threeDirectorsActorJob.setMapOutputValueClass(Text.class);
@@ -207,7 +208,7 @@ public class JobFactory {
 
         joinActorsName.setReducerClass(ActorsNameJoinReducer.class);
 
-        joinActorsName.setJarByClass(ScalaMain.class);
+        joinActorsName.setJarByClass(Main.class);
 
 
         joinActorsName.setOutputKeyClass(Text.class);
@@ -230,12 +231,12 @@ public class JobFactory {
      * @return a Hadoop job
      * @throws Exception if something goes wrong.
      */
-    public static Job createSortedJob(final Configuration conf) throws Exception {
+    public static Job createSortJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
         deleteOutputFolder(fs, outputPath);
 
-        Job sortJob = new Job(conf);
+        Job sortJob = Job.getInstance(conf, "Sort Job");
 
         sortJob.setJarByClass(ScalaMain.class);
         sortJob.setMapperClass(SortMapper.class);

@@ -6,7 +6,7 @@ package it.unibo.bd1819.utils;
 public class Paths {
 
     public static String GENERIC_INPUT_PATH = "hdfs:///user/fnaldini/bigdata/dataset/";
-    public static String GENERIC_OUTPUT_PATH = "mapreduce/";
+    public static String GENERIC_OUTPUT_PATH = "hdfs:///user/fnaldini/mapreduce/";
     public static String NAME_BASICS_PATH = GENERIC_INPUT_PATH + "namebasics";
     public static String TITLE_PRINCIPALS_PATH = GENERIC_INPUT_PATH + "principals";
     public static String TITLE_BASICS_PATH = GENERIC_INPUT_PATH + "titlebasics";
