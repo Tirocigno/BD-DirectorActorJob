@@ -18,6 +18,8 @@ import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
+import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 
 
 import java.io.IOException;
@@ -257,8 +259,15 @@ public class JobFactory {
         sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
         FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
-        //TODO CHANGE THIS
-        sortJob.setNumReduceTasks(1);
+
+        sortJob.setNumReduceTasks(3);
+        Path partitionPath = new Path(Paths.GENERIC_OUTPUT_PATH + "/partition", "part.lst");
+        TotalOrderPartitioner.setPartitionFile(sortJob.getConfiguration(), partitionPath);
+
+        InputSampler.Sampler<IntWritable, Text> sampler = new InputSampler.RandomSampler<>(1, 1000);
+        InputSampler.writePartitionFile(sortJob, sampler);
+
+        sortJob.setPartitionerClass(TotalOrderPartitioner.class);
 
         return sortJob;
     }
