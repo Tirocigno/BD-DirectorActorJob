@@ -22,7 +22,7 @@ generare due fatjar direttamente eseguibili su piattaforma Hadoop:
    * Esegue le computazioni necessarie alla risoluzione del job utilizzando i costrutti messi a disposizione da SparkSQL.
    * Memorizza i risultati su Hive nella tabella: fnaldini_director_actors_db.actor_director_table.
    * Non è necessario specificare alcun path di ingresso per i dati, la loro posizione è già codificata all'interno del codice
-   * Si può specificare il numero di \texttt{executors} con l'argomento --executors= e il numero di tasks per ogni executor con il flag --taskForExceutor=
+   * Si può specificare il numero di executors con l'argomento --executors= e il numero di tasks per ogni executor con il flag --taskForExceutor=
    * Comando per l'esecuzione: spark2-submit director-actor-job-x.x.x-spark.jar
 
  
