@@ -15,7 +15,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
 
 import java.io.IOException;
@@ -192,6 +194,7 @@ public class JobFactory {
 
         MultipleInputs.addInputPath(joinDirectorsName, nameBasicsPath,
                 KeyValueTextInputFormat.class, NameJoinerMapper.class);
+        joinDirectorsName.setOutputFormatClass(SequenceFileOutputFormat.class);
         return joinDirectorsName;
     }
 
@@ -242,7 +245,7 @@ public class JobFactory {
 
         sortJob.setJarByClass(ScalaMain.class);
         sortJob.setMapperClass(SortMapper.class);
-        sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
+        sortJob.setInputFormatClass(SequenceFileInputFormat.class);
 
 
         sortJob.setMapOutputKeyClass(LongWritable.class);

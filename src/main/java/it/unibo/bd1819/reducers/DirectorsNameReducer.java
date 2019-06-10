@@ -31,7 +31,7 @@ public class DirectorsNameReducer extends Reducer<Text, Text, IntWritable, Text>
 
         for(String name : nameTuples) {
            if(!directorTuples.isEmpty()) {
-               context.write(new IntWritable(this.getMoviesDirected(directorTuples)),
+               context.write(new IntWritable(- this.getMoviesDirected(directorTuples)),
                        buildSortedActorString(name,directorTuples));
            }
         }
