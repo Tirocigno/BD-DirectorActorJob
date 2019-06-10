@@ -26,9 +26,13 @@ object ScalaMain extends App {
   val titleBasicsDF = getTitleBasicsDF(sc, sqlContext)
   val titlePrinicipalsDF = getTitlePrincipalsDF(sc, sqlContext)
   val nameBasicsDF = getNameBasicsDF(sc, sqlContext)
+  val definitiveTableName = "fnaldini_director_actors_db.Actor_Director_Table_definitive"
+
+  sqlContext.sql("drop table if exists " + definitiveTableName)
 
   sqlContext.setConf("spark.sql.shuffle.partitions", (executors*taskForExceutor).toString)
   sqlContext.setConf("spark.default.parallelism", (executors*taskForExceutor).toString)
+
 
 
 
@@ -86,7 +90,7 @@ object ScalaMain extends App {
     " from ACTOR_DIRECTOR_FINAL_TABLE order by MoviesDirected desc, " +
     "CollabMovies desc")
 
-  resultDF.write.saveAsTable("fnaldini_director_actors_db.Actor_Director_Table_definitive")
+  resultDF.write.saveAsTable(definitiveTableName)
 }
 
 /**
