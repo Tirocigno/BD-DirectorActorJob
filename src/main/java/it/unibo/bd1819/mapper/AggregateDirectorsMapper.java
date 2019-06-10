@@ -7,7 +7,9 @@ import java.io.IOException;
 
 import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
-
+/**
+ * Map all the DirectorTuple using the DirectorID as a Key
+ */
 public class AggregateDirectorsMapper extends Mapper<Text, Text, Text, Text> {
     public void map(Text key, Text value, Context context
     ) throws IOException, InterruptedException {

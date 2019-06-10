@@ -7,6 +7,9 @@ import java.io.IOException;
 
 import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
+/**
+ * Map the records using the ActorID as Key and inserting a prefix to distinguish the tuple in the reduce phase.
+ */
 public class ActorNameJoinMapper extends Mapper<Text, Text, Text, Text> {
 
     public final static String ACTOR_NAME_JOIN_PREFIX = "actrnm-";

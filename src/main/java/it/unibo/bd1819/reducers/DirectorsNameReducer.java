@@ -12,6 +12,9 @@ import java.util.List;
 
 import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
+/**
+ * Merge the Directors with their name and aggregate all the director record into a single record.
+ */
 public class DirectorsNameReducer extends Reducer<Text, Text, IntWritable, Text> {
     public void reduce(Text key, Iterable<Text> values,
                        Context context
