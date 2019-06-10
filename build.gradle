@@ -92,6 +92,9 @@ dependencies {
     implementation("org.apache.hadoop:hadoop-hdfs:2.6.0-cdh5.13.1")
 
     implementation 'commons-io:commons-io:2.5'
+
+    // Add cli parser support.
+    compile group: 'org.rogach', name: 'scallop_2.11', version: '3.1.3'
 }
 
 

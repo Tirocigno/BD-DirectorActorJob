@@ -9,21 +9,12 @@ import java.io.IOException;
 
 import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 
-public class SortMapper extends Mapper<Text, Text, LongWritable, Text> {
+/**
+ * Simple mapper to allow the shuffle and the sorting of the data via Partitioner.
+ */
+public class SortMapper extends Mapper<IntWritable, Text, IntWritable, Text> {
 
-    public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-       context.write(extractNumberOfFilmsDirected(value), generateNewKey(key, value));
+    public void map(IntWritable key, Text value, Context context) throws IOException, InterruptedException {
+       context.write(key, value);
     }
-
-    private LongWritable extractNumberOfFilmsDirected(final Text directorTuple) {
-        Long filmDirected = Long.parseLong(directorTuple.toString().split(CUSTOM_VALUE_SEPARATOR)[0]);
-        return new LongWritable(filmDirected);
-    }
-
-    private Text generateNewKey(final Text directorName, final Text directorAttributes) {
-        String filmDirected = directorAttributes.toString().split(CUSTOM_VALUE_SEPARATOR)[0];
-        return new Text(directorAttributes.toString()
-                .replace(filmDirected, directorName.toString()));
-    }
-
 }

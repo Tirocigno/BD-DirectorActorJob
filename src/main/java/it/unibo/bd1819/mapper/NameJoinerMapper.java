@@ -9,6 +9,7 @@ import java.io.IOException;
 import static it.unibo.bd1819.utils.Separators.CUSTOM_VALUE_SEPARATOR;
 import static it.unibo.bd1819.utils.Separators.VALUE_SEPARATOR;
 
+
 public class NameJoinerMapper extends Mapper<Text, Text, Text, Text> {
 
     public final static String NAME_JOIN_PREFIX = "nmjnprx-";

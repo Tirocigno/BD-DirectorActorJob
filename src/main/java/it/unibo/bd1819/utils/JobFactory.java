@@ -8,13 +8,18 @@ import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.partition.InputSampler;
+import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 
 
 import java.io.IOException;
@@ -179,8 +184,9 @@ public class JobFactory {
 
         joinDirectorsName.setJarByClass(ScalaMain.class);
 
-
-        joinDirectorsName.setOutputKeyClass(Text.class);
+        joinDirectorsName.setMapOutputKeyClass(Text.class);
+        joinDirectorsName.setMapOutputValueClass(Text.class);
+        joinDirectorsName.setOutputKeyClass(IntWritable.class);
         joinDirectorsName.setOutputValueClass(Text.class);
 
         FileOutputFormat.setOutputPath(joinDirectorsName, joinDirectorsNamePath);
@@ -190,6 +196,7 @@ public class JobFactory {
 
         MultipleInputs.addInputPath(joinDirectorsName, nameBasicsPath,
                 KeyValueTextInputFormat.class, NameJoinerMapper.class);
+        joinDirectorsName.setOutputFormatClass(SequenceFileOutputFormat.class);
         return joinDirectorsName;
     }
 
@@ -234,26 +241,33 @@ public class JobFactory {
     public static Job createSortJob(final Configuration conf) throws Exception {
 
         FileSystem fs = FileSystem.get(conf);
+        Path partitionPath = new Path(Paths.GENERIC_OUTPUT_PATH + "partition", "part.lst");
         deleteOutputFolder(fs, outputPath);
+        deleteOutputFolder(fs, partitionPath);
 
         Job sortJob = Job.getInstance(conf, "Sort Job");
 
         sortJob.setJarByClass(ScalaMain.class);
         sortJob.setMapperClass(SortMapper.class);
-        sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
+        sortJob.setInputFormatClass(SequenceFileInputFormat.class);
 
 
-        sortJob.setMapOutputKeyClass(LongWritable.class);
+        sortJob.setMapOutputKeyClass(IntWritable.class);
         sortJob.setMapOutputValueClass(Text.class);
 
         sortJob.setReducerClass(SortReducer.class);
         sortJob.setOutputKeyClass(Text.class);
         sortJob.setOutputValueClass(Text.class);
-        sortJob.setSortComparatorClass(LongWritable.DecreasingComparator.class);
         FileInputFormat.addInputPath(sortJob, joinDirectorsNamePath);
         FileOutputFormat.setOutputPath(sortJob, outputPath);
-        //TODO CHANGE THIS
-        sortJob.setNumReduceTasks(1);
+
+        sortJob.setNumReduceTasks(3);
+        TotalOrderPartitioner.setPartitionFile(sortJob.getConfiguration(), partitionPath);
+
+        InputSampler.Sampler<IntWritable, Text> sampler = new InputSampler.RandomSampler<>(1, 1000);
+        InputSampler.writePartitionFile(sortJob, sampler);
+
+        sortJob.setPartitionerClass(TotalOrderPartitioner.class);
 
         return sortJob;
     }

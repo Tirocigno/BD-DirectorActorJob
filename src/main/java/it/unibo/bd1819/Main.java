@@ -23,13 +23,14 @@ public class Main {
         jobs.add(createThreeActorDirectorJob(conf));
         jobs.add(createActorsNameJoin(conf));
         jobs.add(createDirectorsNameJoin(conf));
-        jobs.add(createSortJob(conf));
 
         for (Job job: jobs) {
             if (!job.waitForCompletion(true)) {
                 System.exit(1);
             }
         }
+
+        createSortJob(conf).waitForCompletion(true);
     }
 }
 
