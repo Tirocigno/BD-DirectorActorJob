@@ -180,7 +180,8 @@ public class JobFactory {
 
         joinDirectorsName.setJarByClass(ScalaMain.class);
 
-
+        joinDirectorsName.setMapOutputKeyClass(Text.class);
+        joinDirectorsName.setMapOutputValueClass(Text.class);
         joinDirectorsName.setOutputKeyClass(IntWritable.class);
         joinDirectorsName.setOutputValueClass(Text.class);
 
