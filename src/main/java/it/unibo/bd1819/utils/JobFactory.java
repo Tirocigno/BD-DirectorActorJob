@@ -8,6 +8,7 @@ import it.unibo.bd1819.reducers.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -180,7 +181,7 @@ public class JobFactory {
         joinDirectorsName.setJarByClass(ScalaMain.class);
 
 
-        joinDirectorsName.setOutputKeyClass(Text.class);
+        joinDirectorsName.setOutputKeyClass(IntWritable.class);
         joinDirectorsName.setOutputValueClass(Text.class);
 
         FileOutputFormat.setOutputPath(joinDirectorsName, joinDirectorsNamePath);

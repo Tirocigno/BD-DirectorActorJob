@@ -111,7 +111,7 @@ Durante la fase di pianificazione ho cercato di anticipare il più possibile i p
 \subsubsection{SparkSQL implementation}
 
 \begin{itemize}
-	\item \textit{Comando per eseguire il Job}: spark2-shell director-actor-job-x.x.x-spark.jar, non è richiesto nessun parametro di configurazione in entrata.
+	\item \textit{Comando per eseguire il Job}: spark2-shell director-actor-job-x.x.x-spark.jar, si può specificare il numero di \texttt{executors} con l'argomento \texttt{--executors=} e il numero di tasks per ogni executor con il flag \texttt{--taskForExceutor=}.
 	\item \textit{Link all'esecuzione su YARN}:
 	\url{http://isi-vclust0.csr.unibo.it:19888/history/application_1552648127930_3663/jobs/}; 
 	
